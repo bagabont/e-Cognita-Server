@@ -1,13 +1,20 @@
 var router = require('express').Router(),
+    validator = require('validator'),
     User = require('../models/user');
 
-module.exports = function (passport) {
+module.exports = function () {
+
     router.route('/users')
         .post(function (req, res, next) {
-            var email = req.query.email;
-            var pass = req.query.pass;
-            var firstName = req.query.firstname;
-            var lastName = req.query.lastname;
+            var email = req.body.email;
+            var pass = req.body.pass;
+            var firstName = req.body.firstname;
+            var lastName = req.body.lastname;
+
+            if (!validator.isEmail(email) || !validator.isLength(pass, 3) || !validator.isLength(firstName, 1)) {
+                res.status(400).send();
+                return;
+            }
 
             User.findOne({email: email}, function (err, user) {
                 if (err) {
@@ -33,30 +40,36 @@ module.exports = function (passport) {
             });
         });
 
-    router.param('id', function (req, res, next, id) {
-        User.findOne({sid: id}, function (err, model) {
+    router.param('email', function (req, res, next, email) {
+        if (!validator.isEmail(email)) {
+            res.status(400).send();
+            return;
+        }
+
+        User.findOne({email: email}, function (err, model) {
             if (err) {
                 return next(err);
             }
-            req.userModel = model;
+            req.user = model;
             next();
         });
     });
 
-    router.route('/users/:id')
+    router.route('/users/:email')
         .get(function (req, res) {
-            if (!req.userModel) {
+            if (!req.user) {
                 return res.status(404).send();
             } else {
-                res.send(userModelToJson(req.userModel));
+                res.send(userModelToJson(req.user));
             }
         });
 
     function userModelToJson(model) {
         return {
-            id: models._id,
-            first_name: models.firstName,
-            last_name: models.lastName
+            id: model._id,
+            email: model.email,
+            first_name: model.firstName,
+            last_name: model.lastName
         };
     }
 
