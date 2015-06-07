@@ -3,7 +3,7 @@ var router = require('express').Router(),
 
 module.exports = function (passport, bodyParser) {
     router.route('/courses')
-        .all(passport.authenticate('basic', {session: false}))
+        //.all(passport.authenticate('basic', {session: false}))
         .get(function (req, res, next) {
             Course.find({}, function (err, courses) {
                 if (err) {
