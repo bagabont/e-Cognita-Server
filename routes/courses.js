@@ -4,11 +4,16 @@ var router = require('express').Router(),
 module.exports = function (passport, bodyParser) {
     router.route('/courses')
         .all(passport.authenticate('basic', {session: false}))
-        .get(function(req,res,next){
-            Course.find({},function(err,courses){
-                courses.forEach(function(user){
-
-                })
+        .get(function (req, res, next) {
+            Course.find({}, function (err, courses) {
+                if (err) {
+                    throw err;
+                }
+                var coursesJsonArray = [];
+                for (var i = 0; i < courses.length; i++) {
+                    coursesJsonArray.push(courseModelToJson(courses[i]));
+                }
+                res.status(200).send(coursesJsonArray);
             })
         })
         .post(function (req, res, next) {
