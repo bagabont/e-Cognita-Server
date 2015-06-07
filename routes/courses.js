@@ -45,7 +45,7 @@ module.exports = function (passport, bodyParser) {
         });
 
     router.param('id', function (req, res, next, id) {
-        User.findOne({id: id}, function (err, model) {
+        Course.findOne({_id: id}, function (err, model) {
             if (err) {
                 return next(err);
             }
@@ -59,7 +59,7 @@ module.exports = function (passport, bodyParser) {
             if (!req.course) {
                 return res.status(404).send();
             } else {
-                res.send(courseModelToJson(res.course));
+                res.send(courseModelToJson(req.course));
             }
         });
 
