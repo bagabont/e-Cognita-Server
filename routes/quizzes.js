@@ -64,7 +64,7 @@ module.exports = function (passport, bodyParser) {
         })
         .post(function (req, res) {
             var questions = req.body;
-            
+
         });
 
     function quizModelToJson(model) {
