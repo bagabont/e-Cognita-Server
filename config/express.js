@@ -7,12 +7,11 @@ module.exports = function (config, app, passport) {
 
     // add body-parser middleware
     app.use(bodyParser.urlencoded({extended: false}));
-    app.use(bodyParser.json());
 
     // require routes
-    var users = require('../routes/users')(bodyParser);
+    var users = require('../routes/users')();
     var courses = require('../routes/courses')(passport);
-    var quizzes = require('../routes/quizzes')(passport);
+    var quizzes = require('../routes/quizzes')(passport, bodyParser);
 
     // set API routers
     app.use('/api/', users);

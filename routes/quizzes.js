@@ -1,7 +1,10 @@
 var router = require('express').Router(),
     Quiz = require('../models/quiz');
 
-module.exports = function (passport) {
+module.exports = function (passport, bodyParser) {
+    // add support for json content
+    router.use(bodyParser.json());
+
     router.route('/quizzes')
         .all(passport.authenticate('basic', {session: false}))
         .get(function (req, res, next) {
@@ -18,7 +21,7 @@ module.exports = function (passport) {
         })
         .post(function (req, res, next) {
             var content = req.body;
-            if (!content || !content.description || !content.questions) {
+            if (!content || !content.title) {
                 return res.status(400).send();
             }
             var quiz = new Quiz(content);
@@ -35,18 +38,33 @@ module.exports = function (passport) {
             if (err) {
                 return next(err);
             }
-            req.quiz = model;
-            next();
+            if (!model) {
+                return res.status(404).send();
+            }
+            else {
+                req.quiz = model;
+                next();
+            }
         });
     });
 
     router.route('/quizzes/:id')
         .get(function (req, res) {
-            if (!req.quiz) {
-                return res.status(404).send();
-            } else {
-                res.send(quizModelToJson(req.quiz));
+            res.send(quizModelToJson(req.quiz));
+        });
+
+    router.route('/quizzes/:id/questions')
+        .get(function (req, res) {
+            var json = [];
+            var quiz = req.quiz;
+            for (var i = 0; i < quiz.questions.length; i++) {
+                json.push(questionModelToJson(quiz.questions[i]));
             }
+            res.send(json);
+        })
+        .post(function (req, res) {
+            var questions = req.body;
+            
         });
 
     function quizModelToJson(model) {
@@ -54,9 +72,17 @@ module.exports = function (passport) {
             id: model._id,
             created: model.created,
             title: model.title,
-            description: model.description,
-            questions: model.questions
+            description: model.description
         }
     }
+
+    function questionModelToJson(question) {
+        return {
+            id: question._id,
+            text: question.text,
+            answers: question.answers
+        }
+    }
+
     return router;
 };
