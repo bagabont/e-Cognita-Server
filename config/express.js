@@ -5,16 +5,19 @@ module.exports = function (config, app, passport) {
     app.disable('etag');
     app.use(passport.initialize());
 
-    var urlencodedParser = bodyParser.urlencoded({extended: false})
-    app.use(urlencodedParser);
+    // add body-parser middleware
+    app.use(bodyParser.urlencoded({extended: false}));
+    app.use(bodyParser.json());
 
     // require routes
     var users = require('../routes/users')(bodyParser);
-    var courses = require('../routes/courses')(passport, bodyParser);
+    var courses = require('../routes/courses')(passport);
+    var quizzes = require('../routes/quizzes')(passport);
 
     // set API routers
     app.use('/api/', users);
     app.use('/api/', courses);
+    app.use('/api/', quizzes);
 
     // error handler
     app.use(function (req, res, next) {

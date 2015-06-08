@@ -7,11 +7,11 @@ module.exports = function () {
     router.route('/users')
         .post(function (req, res, next) {
             var email = req.body.email;
-            var pass = req.body.pass;
+            var password = req.body.password;
             var firstName = req.body.firstname;
             var lastName = req.body.lastname;
 
-            if (!validator.isEmail(email) || !validator.isLength(pass, 3) || !validator.isLength(firstName, 1)) {
+            if (!validator.isEmail(email) || !validator.isLength(password, 3) || !validator.isLength(firstName, 1)) {
                 res.status(400).send();
                 return;
             }
@@ -26,7 +26,7 @@ module.exports = function () {
                 }
                 user = new User({
                     email: email,
-                    password: pass,
+                    password: password,
                     firstName: firstName,
                     lastName: lastName
                 });
@@ -68,10 +68,9 @@ module.exports = function () {
         return {
             id: model._id,
             email: model.email,
-            first_name: model.firstName,
-            last_name: model.lastName
+            firstname: model.firstName,
+            lastname: model.lastName
         };
     }
-
     return router;
 };

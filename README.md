@@ -11,7 +11,7 @@ x-www-form-urlencoded
 
 parameters:  
 email       required    (valid email)  
-pass        required    (min 3 chars)  
+password    required    (min 3 chars)  
 fistname    required    (min 1 char)  
 lastname    optional  
 ```

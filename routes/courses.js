@@ -1,9 +1,9 @@
 var router = require('express').Router(),
     Course = require('../models/course');
 
-module.exports = function (passport, bodyParser) {
+module.exports = function (passport) {
     router.route('/courses')
-        //.all(passport.authenticate('basic', {session: false}))
+        .all(passport.authenticate('basic', {session: false}))
         .get(function (req, res, next) {
             Course.find({}, function (err, courses) {
                 if (err) {
@@ -71,6 +71,5 @@ module.exports = function (passport, bodyParser) {
             description: model.description
         }
     }
-
     return router;
 };

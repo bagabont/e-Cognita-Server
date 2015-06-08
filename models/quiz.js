@@ -1,13 +1,12 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    Quiz = require('./quiz');
+    Question = require('./question');
 
-var Course = new Schema({
+var Quiz = new Schema({
     created: {type: Date, default: Date.now},
     title: {type: String, unique: true, required: true},
-    subTitle: {type: String},
     description: {type: String},
-    quizzes: {type: [Quiz]}
+    questions: {type: [Question]}
 });
 
-module.exports = mongoose.model('course', Course);
+module.exports = mongoose.model('quiz', Quiz);
