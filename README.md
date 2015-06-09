@@ -51,14 +51,12 @@ Obtain list of courses which the authenticated user is the author for.
 
 **Request:**
 ```httph  
-
 GET /api/courses/authored  
 Accept: application/json 
 ```
 
 **Response:**
-``httph  
-
+```httph
 Status:
 200 OK
 ```
@@ -89,7 +87,7 @@ Accept: application/json
 ```
 
 **Response:**
-``httph
+```httph
 Status:
 200 OK
 ```
@@ -138,7 +136,7 @@ Content-Type: application/json
 ```
 
 **Response:**
-``httph
+```httph
 Status:
 200 OK
 ```
@@ -166,7 +164,7 @@ course_id
 ```
 
 **Response:**
-``httph
+```httph
 Status:
 200 OK
 ```
@@ -191,7 +189,7 @@ Content-Type: application/json
 ```
 
 **Response:**
-``httph
+```httph
 Status:
 200 OK
 ```
