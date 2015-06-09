@@ -120,14 +120,11 @@ Status:
 ### Get quiz
 **Request:**
 ```httph
-POST /api/courses/:id/quizzes/:qid
+POST /api/quizzes/:id
 Content-Type: application/json
 
 **Response:**
 
 ```httph
-Status:
-201 Created     - Course successfully created.
-204 No Content  - Course successfully modified.
-409 Conflict    - Course already exists.
+//TODO
 ```
