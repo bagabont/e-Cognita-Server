@@ -9,7 +9,8 @@ var User = new Schema({
     salt: {type: String, required: true},
     created: {type: Date, default: Date.now},
     firstName: {type: String},
-    lastName: {type: String}
+    lastName: {type: String},
+    enrollments: {type: [Schema.ObjectId]}
 });
 
 User.methods.encryptPassword = function (password) {

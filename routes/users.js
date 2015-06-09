@@ -5,7 +5,6 @@ var router = require('express').Router(),
     await = require('asyncawait/await');
 
 module.exports = function () {
-
     router.route('/users')
         .post(async(function (req, res) {
             var email = req.body.email;

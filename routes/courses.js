@@ -1,5 +1,6 @@
 var router = require('express').Router(),
     Course = require('../models/course'),
+    User = require('../models/user'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await');
 
@@ -47,7 +48,8 @@ module.exports = function (passport) {
     router.route('/courses/enrolled')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
-            var courses = await(Course.find({enrolledUsers: req.user.id}));
+            var user = await(User.findOne({_id: req.user.id}));
+            var courses = await(Course.find({id: user.enrollments}));
             var json = [];
             for (var i = 0; i < courses.length; i++) {
                 var model = courses[i];
@@ -56,18 +58,9 @@ module.exports = function (passport) {
             res.status(200).send(json);
         }))
         .post(async(function (req, res) {
-            var userId = req.user.id;
-
-            var course = await(Course.findOne({_id: req.body.course_id}));
-            if (!course) {
-                return res.status(400).send('Course not found.');
-            }
-
-            // enroll user
-            course.enrolledUsers.push(userId);
-            await(course.save());
-
-            console.log('User ' + req.user.id + ' enrolled for ' + course.title + ' .');
+            var user = await(User.findOne({_id: req.user.id}));
+            user.enrollments.push(req.body.course_id);
+            await(user.save());
             res.status(204).send();
         }));
 
@@ -79,7 +72,6 @@ module.exports = function (passport) {
                 return res.status(404).send();
             }
             else {
-                var quizzes = Quiz.find({})
                 res.send({
                     id: course._id,
                     title: course.title,
