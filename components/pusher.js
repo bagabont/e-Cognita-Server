@@ -10,7 +10,7 @@ var Pusher = function (config) {
     gcmSender = new gcm.Sender(config.gcmApiKey);
 };
 
-Pusher.prototype.send = async(function (quiz, text) {
+Pusher.prototype.sendAsync = async(function (quiz, text, callback) {
     if (!quiz) {
         throw new Error('Quiz cannot be null');
     }
@@ -31,7 +31,9 @@ Pusher.prototype.send = async(function (quiz, text) {
     message.addData('quiz_id', quiz.id);
     message.addData('text', text);
 
-    return await(gcmSender.sendNoRetry(message, tokens));
+    return await(function (callback) {
+        return gcmSender.sendNoRetry(message, tokens, callback);
+    });
 });
 
 module.exports = function (config) {

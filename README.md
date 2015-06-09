@@ -252,3 +252,24 @@ Status:
     }
 ]
 ```
+
+### Publish Quiz
+Publishes a quiz and notifies all subscribed users.
+
+**Request:**
+
+```httph
+POST /api/quizzes/:id/publish
+Content-Type: x-www-form-urlencoded
+
+form-data:  
+text        required    (Text message to the subscribers)  
+```
+
+**Response:**
+
+```httph 
+Status:
+200 OK                 - Quiz successfully published.
+503 Service Unavailable     - No subscribers notified.
+```

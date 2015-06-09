@@ -111,13 +111,17 @@ module.exports = function (config, passport, bodyParser) {
 
             var isPublished = quiz.isPublished;
             if (isPublished) {
-                //TODO uncomment when ready // return res.status(403).send('Quiz is already published.');
+                return res.status(403).send('Quiz is already published.');
             }
-
-            var result = await(messenger.send(quiz, text));
-            quiz.isPublished = true;
-            await(quiz.save());
-            res.status(204).send();
+            var result = await(messenger.sendAsync(quiz, text));
+            if (result.success > 0) {
+                quiz.isPublished = true;
+                await(quiz.save());
+                res.status(200).send(result);
+            }
+            else {
+                res.status(503).send('No successful notifications.');
+            }
         }));
 
     return router;
