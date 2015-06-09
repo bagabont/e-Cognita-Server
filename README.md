@@ -61,7 +61,7 @@ Status:
 200 OK
 ```
 
-```javascript
+```json
 
 [
     {
