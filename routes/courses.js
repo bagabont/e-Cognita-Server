@@ -76,7 +76,13 @@ module.exports = function (passport) {
                 return res.status(404).send();
             }
             else {
-                res.send({id: course._id, title: course.title, description: course.description});
+                var quizzes = Quiz.find({})
+                res.send({
+                    id: course._id,
+                    title: course.title,
+                    description: course.description,
+                    quizzes: course.quizzes
+                });
             }
         }));
 

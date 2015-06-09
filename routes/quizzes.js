@@ -1,5 +1,6 @@
 var router = require('express').Router(),
     Quiz = require('../models/quiz'),
+    Course = require('../models/course'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await');
 
@@ -10,29 +11,61 @@ module.exports = function (passport, bodyParser) {
     router.route('/quizzes')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
-            var quizzes = await(Quiz.find({}));
-            var json = [];
-            for (var i = 0; i < quizzes.length; i++) {
-                var model = quizzes[i];
-                json.push({
-                    id: model._id,
-                    created: model.created,
-                    title: model.title,
-                    description: model.description
+            var courseId = req.query.course_id;
+
+            var result = [];
+            var quizModels;
+
+            if (!courseId) {
+                quizModels = await(Quiz.find());
+            }
+            else {
+                quizModels = (Quiz.find({course_id: courseId}));
+            }
+
+            for (var i = 0; i < quizModels.length; i++) {
+                var quiz = quizModels[i];
+                result.push({
+                    id: quiz._id,
+                    created: quiz.created,
+                    course_id: quiz.course_id,
+                    title: quiz.title,
+                    description: quiz.description
                 });
             }
-            res.status(200).send(json);
+            res.status(200).send(result);
         }))
-        .post(function (req, res) {
+        .post(async(function (req, res) {
             var content = req.body;
-            if (!content || !content.title) {
-                return res.status(400).send();
+
+            if (!content) {
+                return res.status(400).send('Invalid or missing request content.');
             }
+
+            if (!content.course_id) {
+                return res.status(400).send('Invalid or missing course_id.');
+            }
+
+            // find course by id
+            var courseId = content.course_id;
+            var course = await(Course.findOne({_id: courseId}));
+
+            if (!course) {
+                return res.status(400).send('Cannot find course with id: ' + courseId + '.');
+            }
+
+            if (!content.title) {
+                return res.status(400).send('Invalid or missing title.');
+            }
+
+            // create new quiz model
             var quiz = new Quiz(content);
+
+            // save to DB
             await(quiz.save());
 
             res.status(201).send();
-        });
+        }));
 
     router.param('id', async(function (req, res, next, id) {
         var quiz = await(Quiz.findOne({_id: id}));
