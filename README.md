@@ -115,7 +115,7 @@ POST /api/quizzes
 Content-Type: application/json
 ```
 
-**Request Body**
+**Request Body Example**
 ```json
 {
     "title": "Server Technologies",
