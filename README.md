@@ -42,8 +42,36 @@ description     required            (min 1 chars)
 **Response:**
 ```httph
 Status:
-201 Created     - Course successfully created
+200 Created     - Course successfully created
 409 Conflict    - Course already exists
+```
+
+### Get all courses
+Gets list of all available courses
+
+**Request:**
+```httph
+GET /api/courses/
+```
+
+**Response:**
+```httph
+Status:
+200 OK
+```
+
+### Get course
+Gets a course by id
+
+**Request:**
+```httph
+GET /api/courses/:id
+```
+
+**Response:**
+```httph
+Status:
+200 OK
 ```
 
 ### Enroll for a course
@@ -51,7 +79,7 @@ Enroll for a course
 
 **Request:**
 ```httph
-POST /api/courses/enrolled
+POST /api/account/courses/enrolled
 Content-Type: x-www-form-urlencoded
 
 form-data:  
@@ -70,7 +98,7 @@ Get list of courses which the authenticated user is the author for.
 
 **Request:**
 ```httph  
-GET /api/courses/authored  
+GET /api/account/courses/created 
 Accept: application/json 
 ```
 
