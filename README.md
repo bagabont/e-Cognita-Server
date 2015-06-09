@@ -46,6 +46,25 @@ Status:
 409 Conflict    - Course already exists
 ```
 
+### Enroll for a course
+Enroll for a course
+
+**Request:**
+```httph
+POST /api/courses/enrolled
+Content-Type: x-www-form-urlencoded
+
+form-data:  
+course_id       required    
+```
+
+**Response:**
+```httph
+Status:
+204 Created         - Course successfully created
+400 Bad Request     - Course not found
+```
+
 ### Get authored courses
 Get list of courses which the authenticated user is the author for.
 

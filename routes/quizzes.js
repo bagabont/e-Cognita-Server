@@ -4,7 +4,10 @@ var router = require('express').Router(),
     async = require('asyncawait/async'),
     await = require('asyncawait/await');
 
-module.exports = function (passport, bodyParser) {
+module.exports = function (config, passport, bodyParser) {
+
+    var messenger = require('../components/pusher')(config);
+
     // add support for json content
     router.use(bodyParser.json());
 
@@ -99,6 +102,22 @@ module.exports = function (passport, bodyParser) {
                 json.push({id: question._id, text: question.text, answers: question.answers});
             }
             res.send(json);
+        }));
+
+    router.route('/quizzes/:id/publish')
+        .post(async(function (req, res) {
+            var quiz = req.quiz;
+            var text = req.body.text;
+
+            var isPublished = quiz.isPublished;
+            if (isPublished) {
+                //TODO uncomment when ready // return res.status(403).send('Quiz is already published.');
+            }
+
+            var result = await(messenger.send(quiz, text));
+            quiz.isPublished = true;
+            await(quiz.save());
+            res.status(204).send();
         }));
 
     return router;

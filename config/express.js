@@ -11,7 +11,7 @@ module.exports = function (config, app, passport) {
     // require routes
     var users = require('../routes/users')();
     var courses = require('../routes/courses')(passport);
-    var quizzes = require('../routes/quizzes')(passport, bodyParser);
+    var quizzes = require('../routes/quizzes')(config, passport, bodyParser);
 
     // set API routers
     app.use('/api/', users);

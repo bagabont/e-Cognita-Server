@@ -4,6 +4,9 @@ var mongoose = require('mongoose'),
 var Quiz = new Schema({
     created: {type: Date, default: Date.now},
     title: {type: String, required: true},
+    from: {type: Date},
+    to: {type: Date},
+    isPublished: {type: Boolean},
     description: {type: String},
     course_id: {type: Schema.ObjectId, required: true},
     questions: [{

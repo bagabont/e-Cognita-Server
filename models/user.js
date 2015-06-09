@@ -4,6 +4,7 @@ var crypto = require('crypto'),
 
 var User = new Schema({
     email: {type: String, unique: true, required: true},
+    pushToken: {type: String},
     hashedPassword: {type: String, required: true},
     salt: {type: String, required: true},
     created: {type: Date, default: Date.now},

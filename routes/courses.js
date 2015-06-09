@@ -56,10 +56,13 @@ module.exports = function (passport) {
             res.status(200).send(json);
         }))
         .post(async(function (req, res) {
-            var courseId = req.query.id;
             var userId = req.user.id;
 
-            var course = await(Course.findOne({_id: courseId}));
+            var course = await(Course.findOne({_id: req.body.course_id}));
+            if (!course) {
+                return res.status(400).send('Course not found.');
+            }
+
             // enroll user
             course.enrolledUsers.push(userId);
             await(course.save());
