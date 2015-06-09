@@ -170,11 +170,47 @@ Status:
 ```json
 
 {
-    "id": "55754742f218a44013094e7e",
-    "created": "2015-06-08T07:41:54.841Z",
+    "id": "5576f3aff5d8953417ce1824",
+    "created": "2015-06-09T14:09:51.989Z",
+    "course_id": "5576ee13170cb4cc2abb8ed2",
     "title": "Server Technologies",
     "description": "Show your skills and knowledge!"
 }
+
+```
+
+### Get all course quizzes
+Gets all quizzes which are associated to the given course ID.
+
+**Request:**
+```httph
+
+GET /api/quizzes
+Content-Type: application/json
+
+query parameters:
+course_id   
+```
+
+**Response:**
+``httph
+
+Status:
+200 OK
+
+```
+
+```json
+
+[
+    {
+        "id": "5576f3aff5d8953417ce1824",
+        "created": "2015-06-09T14:09:51.989Z",
+        "course_id": "5576ee13170cb4cc2abb8ed2",
+        "title": "Server Technologies",
+        "description": "Show your skills and knowledge!"
+    }
+]
 
 ```
 
@@ -196,11 +232,23 @@ Status:
 
 ```json
 
-{
-    "id": "55754742f218a44013094e7e",
-    "created": "2015-06-08T07:41:54.841Z",
-    "title": "Server Technologies",
-    "description": "Show your skills and knowledge!"
-}
+[
+    {
+        "id": "5576f3aff5d8953417ce1826",
+        "text": "First question?",
+        "answers": [
+            "Answ1",
+            "Answ2"
+        ]
+    },
+    {
+        "id": "5576f3aff5d8953417ce1825",
+        "text": "Another quesion?",
+        "answers": [
+            "Answ3",
+            "Answ4"
+        ]
+    }
+]
 
 ```

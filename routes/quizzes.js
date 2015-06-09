@@ -20,7 +20,7 @@ module.exports = function (passport, bodyParser) {
                 quizModels = await(Quiz.find());
             }
             else {
-                quizModels = (Quiz.find({course_id: courseId}));
+                quizModels = await(Quiz.find({course_id: courseId}));
             }
 
             for (var i = 0; i < quizModels.length; i++) {
