@@ -18,8 +18,8 @@ Pusher.prototype.sendAsync = async(function (quiz, text, callback) {
     if (!course) {
         throw new Error('Course not found!');
     }
-
-    var users = await(User.find({_id: course.enrolledUsers}));
+    // find enrolled users
+    var users = await(User.find({enrollments: course._id}));
     if (!users || users.length == 0) {
         return;
     }
