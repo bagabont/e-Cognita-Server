@@ -34,12 +34,20 @@ module.exports = function (passport) {
             res.status(204).send();
         }));
 
-    router.route('/account/subscriptions')
+    router.route('/account/subscribe')
+        .all(passport.authenticate('basic', {session: false}))
         .post(async(function (req, res) {
+            var token = req.body.token;
             var user = await(User.findOne({_id: req.user.id}));
-//TODO
-            var enrollments = user.enrollments;
-            res.status(201).send();
+            user.pushToken = token;
+            await(user.save());
+            res.status(204).send();
+        }))
+        .delete(async(function (req, res) {
+            var user = await(User.findOne({_id: req.user.id}));
+            user.pushToken = undefined;
+            await(user.save());
+            res.status(204).send();
         }));
 
     return router;

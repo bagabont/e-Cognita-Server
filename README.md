@@ -301,3 +301,40 @@ Status:
 200 OK                 - Quiz successfully published.
 503 Service Unavailable     - No subscribers notified.
 ```
+
+
+### Subscribe user for receiving notifications
+Subscribes a user to receive push notifications
+
+**Request:**
+
+```httph
+POST /account/subscribe
+Content-Type: x-www-form-urlencoded
+
+form-data:  
+token        required    (Push notification token)  
+```
+
+**Response:**
+
+```httph 
+Status:
+204 OK      - Account successfully subscribed.
+```
+
+### Unsubscribe user for receiving notifications
+Unubscribes a user to receive push notifications
+
+**Request:**
+
+```httph
+DELETE /account/subscribe
+```
+
+**Response:**
+
+```httph 
+Status:
+204 OK      - Account successfully unsubscribed.
+```
