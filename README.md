@@ -115,7 +115,7 @@ POST /api/quizzes
 Content-Type: application/json
 ```
 
-**Request Body Example**
+**Request Body Example:**
 ```json
 {
     "title": "Server Technologies",
@@ -141,7 +141,6 @@ Content-Type: application/json
 ```httph
 Status:
 201 Created     - Quiz successfully created.
-409 Conflict    - Quiz already exists.
 ```
 
 ### Get quiz
@@ -149,7 +148,7 @@ Status:
 **Request:**
 ```httph
 GET /api/quizzes/:id
-Content-Type: application/json
+Accept: application/json
 ```
 
 **Response:**
@@ -158,6 +157,7 @@ Status:
 200 OK
 ```
 
+**Response Content Example:**
 ```json
 {
     "id": "5576f3aff5d8953417ce1824",
@@ -186,6 +186,7 @@ Status:
 200 OK
 ```
 
+**Response Content Example:**
 ```json
 [
     {
