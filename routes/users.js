@@ -5,7 +5,7 @@ var router = require('express').Router(),
 module.exports = function () {
 
     router.route('/users')
-        .post(function (req, res, next) {
+        .post(async(function (req, res) {
             var email = req.body.email;
             var password = req.body.password;
             var firstName = req.body.firstname;
@@ -16,61 +16,21 @@ module.exports = function () {
                 return;
             }
 
-            User.findOne({email: email}, function (err, user) {
-                if (err) {
-                    throw err;
-                }
-                if (user) {
-                    res.status(409).send();
-                    return;
-                }
-                user = new User({
-                    email: email,
-                    password: password,
-                    firstName: firstName,
-                    lastName: lastName
-                });
-                user.save(function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                    res.status(201).send();
-                });
+            var user = await(User.findOne({email: email}));
+
+            if (user) {
+                res.status(409).send();
+                return;
+            }
+            user = new User({
+                email: email,
+                password: password,
+                firstName: firstName,
+                lastName: lastName
             });
-        });
-
-    router.param('email', function (req, res, next, email) {
-        if (!validator.isEmail(email)) {
-            res.status(400).send();
-            return;
-        }
-
-        User.findOne({email: email}, function (err, model) {
-            if (err) {
-                return next(err);
-            }
-            req.user = model;
-            next();
-        });
-    });
-
-    router.route('/users/:email')
-        .get(function (req, res) {
-            if (!req.user) {
-                return res.status(404).send();
-            } else {
-                res.send(userModelToJson(req.user));
-            }
-        });
-
-    function userModelToJson(model) {
-        return {
-            id: model._id,
-            email: model.email,
-            firstname: model.firstName,
-            lastname: model.lastName
-        };
-    }
+            await(user.save());
+            res.status(201).send();
+        }));
 
     return router;
 };
