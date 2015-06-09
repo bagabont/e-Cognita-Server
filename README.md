@@ -61,7 +61,7 @@ Status:
 200 OK
 ```
 
-```json
+```javascript
 [
     {
         "id": "557696342886b96832a4842f",
