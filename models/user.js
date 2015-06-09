@@ -3,11 +3,11 @@ var crypto = require('crypto'),
     Schema = mongoose.Schema;
 
 var User = new Schema({
+    created: {type: Date, default: Date.now},
     email: {type: String, unique: true, required: true},
     pushToken: {type: String},
     hashedPassword: {type: String, required: true},
     salt: {type: String, required: true},
-    created: {type: Date, default: Date.now},
     firstName: {type: String},
     lastName: {type: String},
     enrollments: {type: [Schema.ObjectId]}

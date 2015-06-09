@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var Course = new Schema({
     created: {type: Date, default: Date.now},
-    authorId: {type: Schema.ObjectId},
+    author: {type: Schema.ObjectId},
     title: {type: String, unique: true, required: true},
     description: {type: String}
 });
