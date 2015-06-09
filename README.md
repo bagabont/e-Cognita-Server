@@ -3,10 +3,11 @@
 ## REST API
 
 ### Register user
+Registers a user
 
 **Request:**
-```httph
 
+```httph
 POST /api/users
 Content-Type: x-www-form-urlencoded
 
@@ -15,19 +16,15 @@ email       required    (valid email)
 password    required    (min 3 chars)  
 fistname    required    (min 1 char)  
 lastname    optional  
-
 ```
 
 **Response:**
 
 ```httph 
-
 Status:
 201 Created     - User successfully created
 409 Conflict    - User already exists.  
-
 ```
-
 
 ### Create new course
 Creates a new course.
@@ -40,41 +37,31 @@ Content-Type: x-www-form-urlencoded
 form-data:  
 title           required, unique    (min 1 char)  
 description     required            (min 1 chars)  
-
 ```
 
 **Response:**
-
 ```httph
-
 Status:
 201 Created     - Course successfully created
 409 Conflict    - Course already exists
-
 ```
 
 ### Get authored courses
-
 Obtain list of courses which the authenticated user is the author for.
 
 **Request:**
 ```httph
-
 GET /api/courses/authored  
 Accept: application/json 
- 
 ```
 
 **Response:**
 ``httph
-
 Status:
 200 OK
-
 ```
 
 ```json
-
 [
     {
         "id": "557696342886b96832a4842f",
@@ -87,7 +74,6 @@ Status:
         "description": "Useful information."
     }
 ]
-
 ```
 
 ### Get enrolled courses
@@ -95,22 +81,17 @@ Obtain list of courses which the authenticated user is enrolled for.
 
 **Request:**
 ```httph
-
 GET /api/courses/enrolled  
 Accept: application/json  
-
 ```
 
 **Response:**
 ``httph
-
 Status:
 200 OK
-
 ```
 
 ```json
-
 [
     {
         "id": "557696342886b96832a4842f",
@@ -123,7 +104,6 @@ Status:
         "description": "Useful information."
     }
 ]
-
 ```
 
 ### Create new quiz
@@ -136,39 +116,31 @@ Content-Type: application/json
 query parameters:  
 
 course_id   required    (ID of the course for which the quiz is created)
-
 ```
 
 **Response:**
 
 ```httph
-
 Status:
 201 Created     - Quiz successfully created.
 409 Conflict    - Quiz already exists.
-
 ```
 
 ### Get quiz
 
 **Request:**
 ```httph
-
 GET /api/quizzes/:id
 Content-Type: application/json
-
 ```
 
 **Response:**
 ``httph
-
 Status:
 200 OK
-
 ```
 
 ```json
-
 {
     "id": "5576f3aff5d8953417ce1824",
     "created": "2015-06-09T14:09:51.989Z",
@@ -176,7 +148,6 @@ Status:
     "title": "Server Technologies",
     "description": "Show your skills and knowledge!"
 }
-
 ```
 
 ### Get all course quizzes
@@ -184,7 +155,6 @@ Gets all quizzes which are associated to the given course ID.
 
 **Request:**
 ```httph
-
 GET /api/quizzes
 Content-Type: application/json
 
@@ -194,14 +164,11 @@ course_id
 
 **Response:**
 ``httph
-
 Status:
 200 OK
-
 ```
 
 ```json
-
 [
     {
         "id": "5576f3aff5d8953417ce1824",
@@ -211,7 +178,6 @@ Status:
         "description": "Show your skills and knowledge!"
     }
 ]
-
 ```
 
 ### Get quiz questions
@@ -219,19 +185,15 @@ Status:
 ```httph
 GET /api/quizzes/:id/questions
 Content-Type: application/json
-
 ```
 
 **Response:**
 ``httph
-
 Status:
 200 OK
-
 ```
 
 ```json
-
 [
     {
         "id": "5576f3aff5d8953417ce1826",
@@ -250,5 +212,4 @@ Status:
         ]
     }
 ]
-
 ```
