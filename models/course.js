@@ -4,10 +4,11 @@ var mongoose = require('mongoose'),
 
 var Course = new Schema({
     created: {type: Date, default: Date.now},
+    authorId: {type: Schema.ObjectId},
     title: {type: String, unique: true, required: true},
-    subTitle: {type: String},
     description: {type: String},
-    quizzes: {type: [Quiz]}
+    quizzes: {type: [Quiz]},
+    enrolledUsers: {type: [Schema.ObjectId]}
 });
 
 module.exports = mongoose.model('course', Course);

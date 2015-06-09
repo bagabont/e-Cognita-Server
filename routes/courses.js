@@ -4,22 +4,22 @@ var router = require('express').Router(),
 module.exports = function (passport) {
     router.route('/courses')
         .all(passport.authenticate('basic', {session: false}))
-        .get(function (req, res, next) {
+        .get(function (req, res) {
             Course.find({}, function (err, courses) {
                 if (err) {
                     throw err;
                 }
-                var coursesJsonArray = [];
+                var json = [];
                 for (var i = 0; i < courses.length; i++) {
-                    coursesJsonArray.push(courseModelToJson(courses[i]));
+                    json.push(courseModelToJson(courses[i]));
                 }
-                res.status(200).send(coursesJsonArray);
+                res.status(200).send(json);
             })
         })
-        .post(function (req, res, next) {
+        .post(function (req, res) {
             var title = req.body.title;
-            var subTitle = req.body.subtitle;
             var description = req.body.description;
+            var authorId = req.user.id;
 
             Course.findOne({title: title}, function (err, course) {
                 if (err) {
@@ -31,8 +31,8 @@ module.exports = function (passport) {
                 }
                 course = new Course({
                     title: title,
-                    subTitle: subTitle,
-                    description: description
+                    description: description,
+                    authorId: authorId
                 });
                 course.save(function (err) {
                     if (err) {
@@ -42,6 +42,53 @@ module.exports = function (passport) {
                     res.status(201).send();
                 });
             });
+        });
+
+    router.route('/courses/authored')
+        .all(passport.authenticate('basic', {session: false}))
+        .get(function (req, res) {
+            Course.find({authorId: req.user.id}, function (err, courses) {
+                if (err) {
+                    throw err;
+                }
+                var json = [];
+                for (var i = 0; i < courses.length; i++) {
+                    json.push(courseModelToJson(courses[i]));
+                }
+                res.status(200).send(json);
+            })
+        });
+
+    router.route('/courses/enrolled')
+        .all(passport.authenticate('basic', {session: false}))
+        .get(function (req, res) {
+            Course.find({enrolledUsers: req.user.id}, function (err, courses) {
+                if (err) {
+                    throw err;
+                }
+                var json = [];
+                for (var i = 0; i < courses.length; i++) {
+                    json.push(courseModelToJson(courses[i]));
+                }
+                res.status(200).send(json);
+            })
+        })
+        .post(function (req, res) {
+            var courseId = req.query.id;
+            var userId = req.user.id;
+            Course.findOne({_id: courseId}, function (err, course) {
+                if (err) {
+                    throw err;
+                }
+                course.enrolledUsers.push(userId);
+                course.save(function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log('User ' + req.user.id + ' enrolled for ' + course.title + ' .');
+                    res.status(204).send();
+                });
+            })
         });
 
     router.param('id', function (req, res, next, id) {
@@ -55,6 +102,7 @@ module.exports = function (passport) {
     });
 
     router.route('/courses/:id')
+        .all(passport.authenticate('basic', {session: false}))
         .get(function (req, res) {
             if (!req.course) {
                 return res.status(404).send();
@@ -63,13 +111,15 @@ module.exports = function (passport) {
             }
         });
 
+
     function courseModelToJson(model) {
         return {
             id: model._id,
             title: model.title,
-            sub_title: model.subTitle,
-            description: model.description
+            description: model.description,
+            authorId: model.authorId
         }
     }
+
     return router;
 };

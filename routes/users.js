@@ -34,7 +34,6 @@ module.exports = function () {
                     if (err) {
                         throw err;
                     }
-                    console.log('Account created for ' + email + '!');
                     res.status(201).send();
                 });
             });
@@ -72,5 +71,6 @@ module.exports = function () {
             lastname: model.lastName
         };
     }
+
     return router;
 };
