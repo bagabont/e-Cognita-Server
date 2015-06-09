@@ -50,13 +50,15 @@ Status:
 Obtain list of courses which the authenticated user is the author for.
 
 **Request:**
-```httph
+```httph  
+
 GET /api/courses/authored  
 Accept: application/json 
 ```
 
 **Response:**
-``httph
+``httph  
+
 Status:
 200 OK
 ```
