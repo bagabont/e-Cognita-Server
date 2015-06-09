@@ -140,7 +140,8 @@ Content-Type: application/json
 
 ```httph
 Status:
-201 Created     - Quiz successfully created.
+201 Created         - Quiz successfully created.
+400 Bad Request     - Invalid or missing parameters.
 ```
 
 ### Get quiz
