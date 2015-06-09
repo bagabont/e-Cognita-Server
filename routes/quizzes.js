@@ -15,27 +15,22 @@ module.exports = function (config, passport, bodyParser) {
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
             var courseId = req.query.course_id;
-
-            var result = [];
-            var quizModels;
-
+            var quizzes;
             if (!courseId) {
-                quizModels = await(Quiz.find());
+                quizzes = await(Quiz.find());
             }
             else {
-                quizModels = await(Quiz.find({course_id: courseId}));
+                quizzes = await(Quiz.find({course_id: courseId}));
             }
-
-            for (var i = 0; i < quizModels.length; i++) {
-                var quiz = quizModels[i];
-                result.push({
-                    id: quiz._id,
-                    created: quiz.created,
-                    course_id: quiz.course_id,
-                    title: quiz.title,
-                    description: quiz.description
-                });
-            }
+            var result = quizzes.map(function (model) {
+                return {
+                    id: model._id,
+                    created: model.created,
+                    course_id: model.course_id,
+                    title: model.title,
+                    description: model.description
+                }
+            });
             res.status(200).send(result);
         }))
         .post(async(function (req, res) {
@@ -94,14 +89,11 @@ module.exports = function (config, passport, bodyParser) {
 
     router.route('/quizzes/:id/questions')
         .get(async(function (req, res) {
-            var json = [];
             var questions = req.quiz.questions;
-
-            for (var i = 0; i < questions.length; i++) {
-                var question = questions[i];
-                json.push({id: question._id, text: question.text, answers: question.answers});
-            }
-            res.send(json);
+            var result = questions.map(function (q) {
+                return {id: q._id, text: q.text, answers: q.answers}
+            });
+            res.send(result);
         }));
 
     router.route('/quizzes/:id/publish')

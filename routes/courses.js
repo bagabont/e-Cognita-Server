@@ -30,7 +30,7 @@ module.exports = function (passport) {
             // create and save the new course
             course = new Course({title: title, description: description, author: author});
             await(course.save());
-            debug('Course ' + title + ' created!');
+            console.log('Course ' + title + ' created!');
             res.status(201).send();
         }));
 
