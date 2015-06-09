@@ -47,7 +47,7 @@ Status:
 ```
 
 ### Get authored courses
-Obtain list of courses which the authenticated user is the author for.
+Get list of courses which the authenticated user is the author for.
 
 **Request:**
 ```httph  
@@ -78,7 +78,7 @@ Status:
 ```
 
 ### Get enrolled courses
-Obtain list of courses which the authenticated user is enrolled for.
+Get list of courses which the authenticated user is enrolled for.
 
 **Request:**
 ```httph
@@ -113,10 +113,27 @@ Status:
 ```httph
 POST /api/quizzes
 Content-Type: application/json
+```
 
-query parameters:  
-
-course_id   required    (ID of the course for which the quiz is created)
+**Request Body**
+```json
+{
+    "title": "Server Technologies",
+    "description": "Show your skills and knowledge!",
+    "course_id": "5576ee13170cb4cc2abb8ed2", 
+    "questions": [
+        {
+            "text": "First question?",
+            "answers": ["Answ1",  "Answ2"],
+            "correctAnswerIndex": "1"
+        },
+         {
+            "text": "Another quesion?",
+            "answers": ["Answ3", "Answ4"],
+            "correctAnswerIndex": "0"
+        } 
+    ]
+}
 ```
 
 **Response:**
