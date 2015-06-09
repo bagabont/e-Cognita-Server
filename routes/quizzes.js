@@ -59,21 +59,14 @@ module.exports = function (passport, bodyParser) {
     router.route('/quizzes/:id/questions')
         .get(async(function (req, res) {
             var json = [];
-            var quiz = req.quiz;
-            for (var i = 0; i < quiz.questions.length; i++) {
-                json.push(questionModelToJson(quiz.questions[i]));
+            var questions = req.quiz.questions;
+
+            for (var i = 0; i < questions.length; i++) {
+                var question = questions[i];
+                json.push({id: question._id, text: question.text, answers: question.answers});
             }
             res.send(json);
         }));
-
-
-    function questionModelToJson(question) {
-        return {
-            id: question._id,
-            text: question.text,
-            answers: question.answers
-        }
-    }
 
     return router;
 };

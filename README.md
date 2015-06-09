@@ -54,6 +54,7 @@ Status:
 ```
 
 ### Get authored courses
+
 Obtain list of courses which the authenticated user is the author for.
 
 **Request:**
@@ -65,6 +66,13 @@ Accept: application/json
 ```
 
 **Response:**
+``httph
+
+Status:
+200 OK
+
+```
+
 ```json
 
 [
@@ -94,6 +102,13 @@ Accept: application/json
 ```
 
 **Response:**
+``httph
+
+Status:
+200 OK
+
+```
+
 ```json
 
 [
@@ -135,15 +150,57 @@ Status:
 ```
 
 ### Get quiz
+
 **Request:**
 ```httph
-POST /api/quizzes/:id
+
+GET /api/quizzes/:id
 Content-Type: application/json
 
+```
+
 **Response:**
+``httph
 
+Status:
+200 OK
+
+```
+
+```json
+
+{
+    "id": "55754742f218a44013094e7e",
+    "created": "2015-06-08T07:41:54.841Z",
+    "title": "Server Technologies",
+    "description": "Show your skills and knowledge!"
+}
+
+```
+
+### Get quiz questions
+**Request:**
 ```httph
+GET /api/quizzes/:id/questions
+Content-Type: application/json
 
-//TODO
+```
+
+**Response:**
+``httph
+
+Status:
+200 OK
+
+```
+
+```json
+
+{
+    "id": "55754742f218a44013094e7e",
+    "created": "2015-06-08T07:41:54.841Z",
+    "title": "Server Technologies",
+    "description": "Show your skills and knowledge!"
+}
 
 ```
