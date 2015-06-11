@@ -52,7 +52,7 @@ description     required            (min 1 chars)
 **Response:**
 ```httph
 Status:
-200 Created     - Course successfully created
+201 Created     - Course successfully created
 409 Conflict    - Course already exists
 ```
 
@@ -99,7 +99,7 @@ course_id       required
 **Response:**
 ```httph
 Status:
-204 Created         - Course successfully created
+204 No Content      - Successfully enrolled
 400 Bad Request     - Course not found
 ```
 
@@ -119,7 +119,6 @@ Status:
 ```
 
 ```json
-
 [
     {
         "id": "557696342886b96832a4842f",
@@ -330,7 +329,7 @@ token        required    (Push notification token)
 
 ```httph 
 Status:
-204 OK      - Account successfully subscribed.
+204 No Content      - Account successfully subscribed.
 ```
 
 ### Unsubscribe user for receiving notifications
@@ -346,7 +345,7 @@ DELETE /account/subscribe
 
 ```httph 
 Status:
-204 OK      - Account successfully unsubscribed.
+204 No Content      - Account successfully unsubscribed.
 ```
 
 
@@ -373,5 +372,5 @@ POST /api/quizzes/:id/answers
 
 ```httph 
 Status:
-204 OK      - Answers successfully sent.
+204 No Content      - Answers successfully sent.
 ```
