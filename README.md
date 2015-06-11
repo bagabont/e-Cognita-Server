@@ -5,7 +5,7 @@
 ### Authentication
 
 The server uses basic authentication. 
-With each request you have to send a headher:
+With each request you have to send an authentication header:
 
 Example:
 ```http
