@@ -77,6 +77,7 @@ module.exports = function (config, passport, bodyParser) {
     }));
 
     router.route('/quizzes/:id')
+        .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
             var model = req.quiz;
             res.send({
@@ -97,6 +98,7 @@ module.exports = function (config, passport, bodyParser) {
         }));
 
     router.route('/quizzes/:id/publish')
+        .all(passport.authenticate('basic', {session: false}))
         .post(async(function (req, res) {
             var quiz = req.quiz;
             var text = req.body.text;
