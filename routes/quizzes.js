@@ -115,11 +115,12 @@ module.exports = function (config, passport, bodyParser) {
             var content = req.body;
             var answer = QuizAnswer(content);
             answer.quiz = quizId;
+            answer.author = req.user.id;
 
             // save to DB
             await(answer.save());
 
-            res.send(result);
+            res.status(204).send();
         }));
 
     router.route('/quizzes/:id/publish')
