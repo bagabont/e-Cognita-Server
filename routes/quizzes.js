@@ -1,5 +1,6 @@
 var router = require('express').Router(),
     Quiz = require('../models/quiz'),
+    QuizAnswer = require('../models/quiz-answer'),
     Course = require('../models/course'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await');
@@ -89,11 +90,35 @@ module.exports = function (config, passport, bodyParser) {
         }));
 
     router.route('/quizzes/:id/questions')
+        .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
             var questions = req.quiz.questions;
             var result = questions.map(function (q) {
                 return {id: q._id, text: q.text, answers: q.answers}
             });
+            res.send(result);
+        }));
+
+    router.route('/quizzes/:id/answers')
+        .all(passport.authenticate('basic', {session: false}))
+        .get(async(function (req, res) {
+            var quizId = req.quiz.id;
+            var answers = await(QuizAnswer.find({quiz: quizId}));
+
+            var result = answers.map(function (a) {
+                return {author: a.author, created: a.created, answers: a.answers}
+            });
+            res.send(result);
+        }))
+        .post(async(function (req, res) {
+            var quizId = req.quiz.id;
+            var content = req.body;
+            var answer = QuizAnswer(content);
+            answer.quiz = quizId;
+
+            // save to DB
+            await(answer.save());
+
             res.send(result);
         }));
 
@@ -103,13 +128,13 @@ module.exports = function (config, passport, bodyParser) {
             var quiz = req.quiz;
             var text = req.body.text;
 
-            var isPublished = quiz.isPublished;
+            var isPublished = quiz.datePublished === undefined;
             if (isPublished) {
                 return res.status(403).send('Quiz is already published.');
             }
             var result = await(messenger.sendAsync(quiz, text));
             if (result.success > 0) {
-                quiz.isPublished = true;
+                quiz.datePublished = new Date();
                 await(quiz.save());
                 res.status(200).send(result);
             }
