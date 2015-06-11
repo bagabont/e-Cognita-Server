@@ -348,3 +348,30 @@ DELETE /account/subscribe
 Status:
 204 OK      - Account successfully unsubscribed.
 ```
+
+
+### Send answers
+```httph
+POST /api/quizzes/:id/answers
+```
+
+**Example Request Body**
+```json
+[
+  {
+      "question": "55776494d01118ec0cfdfc0f",
+      "choice":1
+  },
+  {
+      "question": "66776494d01118ec0cfdfc0f",
+      "choice":0
+  }
+]
+```
+
+**Response:**
+
+```httph 
+Status:
+204 OK      - Answers successfully sent.
+```

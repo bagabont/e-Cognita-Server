@@ -113,9 +113,11 @@ module.exports = function (config, passport, bodyParser) {
         .post(async(function (req, res) {
             var quizId = req.quiz.id;
             var content = req.body;
-            var answer = QuizAnswer(content);
-            answer.quiz = quizId;
-            answer.author = req.user.id;
+            var answer = QuizAnswer({
+                quiz: quizId,
+                author: req.user.id,
+                answers: content
+            });
 
             // save to DB
             await(answer.save());
