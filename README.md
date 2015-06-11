@@ -2,6 +2,16 @@
 
 ## REST API
 
+### Authentication
+
+The server uses basic authentication. 
+With each request you have to send a headher:
+
+Example:
+```http
+Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+```
+
 ### Register user
 Registers a user
 
