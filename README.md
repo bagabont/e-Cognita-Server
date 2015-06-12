@@ -103,6 +103,24 @@ Status:
 400 Bad Request     - Course not found
 ```
 
+### Leave a course
+Leave a course
+
+**Request:**
+```httph
+DELETE /api/account/courses/enrolled/:id
+
+params:  
+id       required    (ID of the course to be left)
+```
+
+**Response:**
+```httph
+Status:
+204 No Content      - Successfully left the course
+404 Not Found       - Course not found in user's enrollments
+```
+
 ### Get authored courses
 Get list of courses which the authenticated user is the author for.
 

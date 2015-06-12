@@ -29,9 +29,29 @@ module.exports = function (passport) {
         }))
         .post(async(function (req, res) {
             var user = await(User.findOne({_id: req.user.id}));
-            user.enrollments.push(req.body.course_id);
-            await(user.save());
-            res.status(204).send();
+            var index = user.enrollments.indexOf(courseId);
+            if (index > -1) {
+                user.enrollments.push(req.body.course_id);
+                await(user.save());
+                return res.status(204).send();
+            }
+            else {
+                return res.status(400).send('User is already enrolled in that course.');
+            }
+        }));
+
+    router.route('/account/courses/enrolled/:id')
+        .all(passport.authenticate('basic', {session: false}))
+        .delete(async(function (req, res) {
+            var user = await(User.findOne({_id: req.user.id}));
+            var courseId = req.params.id;
+            var index = user.enrollments.indexOf(courseId);
+            if (index > -1) {
+                user.enrollments.splice(index, 1);
+                await(user.save());
+                return res.status(204).send();
+            }
+            return res.status(404).send('User cannot leave a course he is not enrolled in.');
         }));
 
     router.route('/account/subscribe')
