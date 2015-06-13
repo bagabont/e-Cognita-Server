@@ -118,7 +118,7 @@ id       required    (ID of the course to be left)
 ```httph
 Status:
 204 No Content      - Successfully left the course
-404 Not Found       - Course not found in user's enrollments
+404 Not Found       - Course not found in user's enrollments or user is already enrolled in that course.
 ```
 
 ### Get authored courses

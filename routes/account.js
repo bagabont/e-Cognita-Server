@@ -26,25 +26,27 @@ module.exports = function (passport) {
                 return {id: model._id, title: model.title, description: model.description};
             });
             res.status(200).send(result);
-        }))
-        .post(async(function (req, res) {
-            var user = await(User.findOne({_id: req.user.id}));
-            var index = user.enrollments.indexOf(courseId);
-            if (index > -1) {
-                user.enrollments.push(req.body.course_id);
-                await(user.save());
-                return res.status(204).send();
-            }
-            else {
-                return res.status(400).send('User is already enrolled in that course.');
-            }
         }));
 
     router.route('/account/courses/enrolled/:id')
         .all(passport.authenticate('basic', {session: false}))
+        .post(async(function (req, res) {
+            var courseId = req.params.id;
+            var user = await(User.findOne({_id: req.user.id}));
+            var index = user.enrollments.indexOf(courseId);
+            if (index > -1) {
+                return res.status(400).send('User is already enrolled in that course.');
+            }
+            else {
+                user.enrollments.push(courseId);
+                await(user.save());
+                return res.status(204).send();
+            }
+        }))
         .delete(async(function (req, res) {
             var user = await(User.findOne({_id: req.user.id}));
             var courseId = req.params.id;
+            console.log(user.enrollments);
             var index = user.enrollments.indexOf(courseId);
             if (index > -1) {
                 user.enrollments.splice(index, 1);
