@@ -119,11 +119,10 @@ Enroll for a course
 
 **Request:**
 ```httph
-POST /api/account/enrollments
-Content-Type: x-www-form-urlencoded
+POST /api/account/enrollments/:id
 
-form-data:  
-course_id       required    
+params:  
+id       Course ID for which the user is enrolling    
 ```
 
 **Response:**
@@ -138,7 +137,7 @@ Get list of courses which the user is enrolled for.
 
 **Request:**
 ```httph
-GET /api/account/enrollments 
+GET /api/account/enrollments
 Accept: application/json  
 ```
 
