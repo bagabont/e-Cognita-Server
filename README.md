@@ -84,49 +84,12 @@ Status:
 200 OK
 ```
 
-### Enroll for a course
-Enroll for a course
-
-**Request:**
-```httph
-POST /api/account/courses/enrolled
-Content-Type: x-www-form-urlencoded
-
-form-data:  
-course_id       required    
-```
-
-**Response:**
-```httph
-Status:
-204 No Content      - Successfully enrolled
-400 Bad Request     - Course not found
-```
-
-### Leave a course
-Leave a course
-
-**Request:**
-```httph
-DELETE /api/account/courses/enrolled/:id
-
-params:  
-id       required    (ID of the course to be left)
-```
-
-**Response:**
-```httph
-Status:
-204 No Content      - Successfully left the course
-404 Not Found       - Course not found in user's enrollments or user is already enrolled in that course.
-```
-
 ### Get authored courses
 Get list of courses which the authenticated user is the author for.
 
 **Request:**
 ```httph  
-GET /api/account/courses/created 
+GET /api/account/authored  
 Accept: application/json 
 ```
 
@@ -151,12 +114,31 @@ Status:
 ]
 ```
 
-### Get enrolled courses
-Get list of courses which the authenticated user is enrolled for.
+### Enroll for a course
+Enroll for a course
 
 **Request:**
 ```httph
-GET /api/courses/enrolled  
+POST /api/account/enrollments
+Content-Type: x-www-form-urlencoded
+
+form-data:  
+course_id       required    
+```
+
+**Response:**
+```httph
+Status:
+204 No Content      - Successfully enrolled
+400 Bad Request     - Course not found
+```
+
+### Get enrolled courses
+Get list of courses which the user is enrolled for.
+
+**Request:**
+```httph
+GET /api/account/enrollments 
 Accept: application/json  
 ```
 
@@ -179,6 +161,24 @@ Status:
         "description": "Useful information."
     }
 ]
+```
+
+### Leave a course
+Leave a course
+
+**Request:**
+```httph
+DELETE /api/account/enrollments/:id
+
+params:  
+id       required    (ID of the course to be left)
+```
+
+**Response:**
+```httph
+Status:
+204 No Content      - Successfully left the course
+404 Not Found       - Course not found in user's enrollments or user is already enrolled in that course.
 ```
 
 ### Create new quiz
@@ -336,11 +336,10 @@ Subscribes a user to receive push notifications
 **Request:**
 
 ```httph
-POST /account/subscribe
-Content-Type: x-www-form-urlencoded
+POST /account/subscriptions/:token
 
-form-data:  
-token        required    (Push notification token)  
+params:  
+token   (Push notification token)  
 ```
 
 **Response:**
@@ -356,7 +355,7 @@ Unubscribes a user to receive push notifications
 **Request:**
 
 ```httph
-DELETE /account/subscribe
+DELETE /account/subscriptions/
 ```
 
 **Response:**

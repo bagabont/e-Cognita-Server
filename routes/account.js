@@ -6,7 +6,7 @@ var router = require('express').Router(),
 
 module.exports = function (passport) {
 
-    router.route('/account/courses/created')
+    router.route('/account/authored')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
             var courses = await(Course.find({author: req.user.id}));
@@ -16,7 +16,7 @@ module.exports = function (passport) {
             res.status(200).send(result);
         }));
 
-    router.route('/account/courses/enrolled')
+    router.route('/account/enrollments')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
             var user = await(User.findOne({_id: req.user.id}));
@@ -28,7 +28,7 @@ module.exports = function (passport) {
             res.status(200).send(result);
         }));
 
-    router.route('/account/courses/enrolled/:id')
+    router.route('/account/enrollments/:id')
         .all(passport.authenticate('basic', {session: false}))
         .post(async(function (req, res) {
             var courseId = req.params.id;
@@ -46,7 +46,6 @@ module.exports = function (passport) {
         .delete(async(function (req, res) {
             var user = await(User.findOne({_id: req.user.id}));
             var courseId = req.params.id;
-            console.log(user.enrollments);
             var index = user.enrollments.indexOf(courseId);
             if (index > -1) {
                 user.enrollments.splice(index, 1);
@@ -56,10 +55,10 @@ module.exports = function (passport) {
             return res.status(404).send('User cannot leave a course he is not enrolled in.');
         }));
 
-    router.route('/account/subscribe')
+    router.route('/account/subscriptions/:token')
         .all(passport.authenticate('basic', {session: false}))
         .post(async(function (req, res) {
-            var token = req.body.token;
+            var token = req.params.token;
             var user = await(User.findOne({_id: req.user.id}));
             user.pushToken = token;
             await(user.save());
