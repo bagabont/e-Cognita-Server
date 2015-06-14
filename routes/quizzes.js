@@ -1,6 +1,7 @@
 var router = require('express').Router(),
     Quiz = require('../models/quiz'),
     QuizAnswer = require('../models/quiz-answer'),
+    HttpError = require('../components/http-error'),
     Course = require('../models/course'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await');
@@ -9,12 +10,9 @@ module.exports = function (config, passport, bodyParser) {
 
     var messenger = require('../components/pusher')(config);
 
-    // add support for json content
-    router.use(bodyParser.json());
-
     router.route('/quizzes')
         .all(passport.authenticate('basic', {session: false}))
-        .get(async(function (req, res) {
+        .get(async(function (req, res, next) {
             var courseId = req.query.course_id;
             var quizzes;
             if (!courseId) {
@@ -32,71 +30,65 @@ module.exports = function (config, passport, bodyParser) {
                     description: model.description
                 }
             });
-            res.status(200).send(result);
+            return res.status(200).json(result);
         }))
         .post(async(function (req, res) {
             var content = req.body;
-
             if (!content) {
-                return res.status(400).send('Invalid or missing request content.');
+                return next(new HttpError(400, 'Invalid or missing request content.'));
             }
-
             if (!content.course_id) {
-                return res.status(400).send('Invalid or missing course_id.');
+                return next(new HttpError(400, 'Invalid or missing course_id.'));
             }
-
-            // find course by id
-            var courseId = content.course_id;
-            var course = await(Course.findOne({_id: courseId}));
-
-            if (!course) {
-                return res.status(400).send('Cannot find course with id: ' + courseId + '.');
-            }
-
             if (!content.title) {
-                return res.status(400).send('Invalid or missing title.');
+                return next(new HttpError(400, 'Invalid or missing title.'));
             }
-
-            // create new quiz model
+            var courseId = content.course_id;
+            var course = await(Course.findById(courseId));
+            if (!course) {
+                return next(new HttpError(400, 'Cannot find course with id: ' + courseId + '.'));
+            }
             var quiz = new Quiz(content);
-
-            // save to DB
             await(quiz.save());
 
-            res.status(201).send();
+            return res.status(201).json();
         }));
 
     router.param('id', async(function (req, res, next, id) {
-        var quiz = await(Quiz.findOne({_id: id}));
+        var quiz = await(Quiz.findById(id));
         if (!quiz) {
-            return res.status(404).send();
+            return next(new HttpError(404, 'Quiz not found.'));
         }
         else {
             req.quiz = quiz;
-            next();
+            return next();
         }
     }));
 
     router.route('/quizzes/:id')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
-            var model = req.quiz;
-            res.send({
-                id: model._id,
-                created: model.created,
-                title: model.title,
-                description: model.description
-            });
+            res.json(req.quiz.getMinimalInfo());
         }));
 
     router.route('/quizzes/:id/questions')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res) {
-            var questions = req.quiz.questions;
-            var result = questions.map(function (q) {
-                return {id: q._id, text: q.text, answers: q.answers}
+            var quiz = req.quiz;
+            // Check if quiz has due time.
+            var now = new Date();
+            if (quiz.due && quiz.due > now) {
+                return next(new HttpError(410, 'The quiz is no longer available.'));
+            }
+            var questions = quiz.questions;
+            var result = questions.map(function (question) {
+                return {
+                    id: question._id,
+                    text: question.text,
+                    answers: question.answers
+                }
             });
-            res.send(result);
+            return res.status(200).json(result);
         }));
 
     router.route('/quizzes/:id/answers')
@@ -105,10 +97,14 @@ module.exports = function (config, passport, bodyParser) {
             var quizId = req.quiz.id;
             var answers = await(QuizAnswer.find({quiz: quizId}));
 
-            var result = answers.map(function (a) {
-                return {author: a.author, created: a.created, answers: a.answers}
+            var result = answers.map(function (answer) {
+                return {
+                    author: answer.author,
+                    created: answer.created,
+                    answers: answer.answers
+                }
             });
-            res.send(result);
+            return res.status(200).json(result);
         }))
         .post(async(function (req, res) {
             var quizId = req.quiz.id;
@@ -122,7 +118,7 @@ module.exports = function (config, passport, bodyParser) {
             // save to DB
             await(answer.save());
 
-            res.status(204).send();
+            return res.status(204).json();
         }));
 
     router.route('/quizzes/:id/publish')
@@ -133,16 +129,16 @@ module.exports = function (config, passport, bodyParser) {
 
             var isPublished = quiz.datePublished === undefined;
             if (isPublished) {
-                return res.status(403).send('Quiz is already published.');
+                return next(new HttpError(403, 'Quiz is already published.'));
             }
             var result = await(messenger.sendAsync(quiz, text));
             if (result.success > 0) {
                 quiz.datePublished = new Date();
                 await(quiz.save());
-                res.status(200).send(result);
+                return res.status(200).json(result);
             }
             else {
-                res.status(503).send('No successful notifications.');
+                return next(new HttpError(503, 'No successful notifications.'));
             }
         }));
 

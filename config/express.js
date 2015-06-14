@@ -7,6 +7,7 @@ module.exports = function (config, app, passport) {
 
     // add body-parser middleware
     app.use(bodyParser.urlencoded({extended: false}));
+    app.use(bodyParser.json());
 
     // require routes
     var users = require('../routes/users')();
@@ -20,19 +21,36 @@ module.exports = function (config, app, passport) {
     app.use('/api/', courses);
     app.use('/api/', quizzes);
 
-    // error handler
+    // catch 404 and forward to error handler
     app.use(function (req, res, next) {
-        res.status(404).send({status: 404, url: req.url});
+        var err = new Error('Not Found');
+        err.status = 404;
+        next(err);
     });
 
-    // error handler
-    app.use(function (err, req, res) {
-        // do not expose error data in production
-        var errorData = app.get('env') === 'development' ? err : {};
-        res.status(err.statusCode || 500)
-            .send({
+    ////
+    // error handlers
+    /////
+
+    // development error handler
+    // will print stack trace
+    if (app.get('env') === 'development') {
+        app.use(function (err, req, res, next) {
+            res.status(err.status || 500);
+            res.send({
                 message: err.message,
-                error: errorData
+                error: err
             });
+        });
+    }
+
+    // production error handler
+    // no stack traces leaked to user
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.send({
+            message: err.message,
+            error: {}
+        });
     });
 };
