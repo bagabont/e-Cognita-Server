@@ -121,14 +121,15 @@ module.exports = function (config, passport) {
             return res.status(204).json();
         }));
 
-    router.route('/quizzes/:id/publish')
+    router.route('/quizzes/:id/publish/:overwrite')
         .all(passport.authenticate('basic', {session: false}))
         .post(async(function (req, res, next) {
             var quiz = req.quiz;
             var text = req.body.text;
+            var overwrite = req.params.overwrite;
 
-            var isPublished = quiz.datePublished === undefined;
-            if (isPublished) {
+            var isPublished = quiz.datePublished !== undefined;
+            if (isPublished && overwrite !== 'true') {
                 return next(new HttpError(403, 'Quiz is already published.'));
             }
             var result = await(messenger.sendAsync(quiz, text));
@@ -146,7 +147,7 @@ module.exports = function (config, passport) {
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
                 return res.status(501).json();
-                
+
                 //var quiz = req.quiz;
                 //var questions = quiz.questions;
                 //var userAnswers = await(QuizAnswer.find({quiz: quiz.id}));

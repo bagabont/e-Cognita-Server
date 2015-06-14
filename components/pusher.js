@@ -32,7 +32,7 @@ Pusher.prototype.sendAsync = async(function (quiz, text, callback) {
     message.addData('text', text);
 
     return await(function (callback) {
-        return gcmSender.sendNoRetry(message, tokens, callback);
+        return gcmSender.send(message, tokens, callback);
     });
 });
 
