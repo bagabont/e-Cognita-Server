@@ -1,5 +1,4 @@
-var https = require('https'),
-    http = require('http'),
+var http = require('http'),
     passport = require('passport'),
     express = require('express');
 
@@ -13,22 +12,14 @@ require('./config/mongoose')(config);
 require('./config/passport')(passport);
 require('./config/express')(config, app, passport);
 
-var options = {
-  pfx: config.certificate,
-  passphrase: config.certificatePassphrase
-};
-
 var server;
 
 if (env === "production") {
-  // Create an HTTPS service.
-  server = https.createServer(options, app);
-}
-else {
-  // Create an HTTP service.
   server = http.createServer(app);
 }
-
+else {
+  server = http.createServer(app);
+}
 
 module.exports = server;
 

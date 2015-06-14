@@ -1,5 +1,4 @@
-var path = require('path'),
-    fs = require('fs');
+var path = require('path');
 
 var rootPath = path.normalize(__dirname + './');
 var mongoUser = process.env.MONGO_USER;
