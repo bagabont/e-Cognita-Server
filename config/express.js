@@ -13,7 +13,7 @@ module.exports = function (config, app, passport) {
     var users = require('../routes/users')();
     var courses = require('../routes/courses')(passport);
     var account = require('../routes/account')(passport);
-    var quizzes = require('../routes/quizzes')(config, passport, bodyParser);
+    var quizzes = require('../routes/quizzes')(config, passport);
 
     // set API routers
     app.use('/api/', users);
@@ -25,6 +25,7 @@ module.exports = function (config, app, passport) {
     app.use(function (req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;
+        err.url = req.url;
         next(err);
     });
 

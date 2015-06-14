@@ -42,6 +42,7 @@ module.exports = function (passport) {
             else {
                 user.enrollments.push(courseId);
                 await(user.save());
+
                 return res.status(204).json();
             }
         }))
@@ -55,6 +56,7 @@ module.exports = function (passport) {
 
                 return res.status(204).json();
             }
+
             return next(new HttpError(404, 'Course not found in enrollments list.'));
         }));
 

@@ -20,6 +20,7 @@ module.exports = function (passport) {
         }
     });
 
+    // add user authentication verifier
     passport.use(new BasicStrategy(verifyAuth));
 };
 

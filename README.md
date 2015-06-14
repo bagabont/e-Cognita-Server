@@ -335,7 +335,7 @@ Subscribes a user to receive push notifications
 **Request:**
 
 ```httph
-POST /account/subscriptions/:token
+POST /api/account/subscriptions/:token
 
 params:  
 token   (Push notification token)  
@@ -354,7 +354,7 @@ Unubscribes a user to receive push notifications
 **Request:**
 
 ```httph
-DELETE /account/subscriptions/
+DELETE /api/account/subscriptions/
 ```
 
 **Response:**

@@ -6,7 +6,7 @@ var router = require('express').Router(),
     async = require('asyncawait/async'),
     await = require('asyncawait/await');
 
-module.exports = function (config, passport, bodyParser) {
+module.exports = function (config, passport) {
 
     var messenger = require('../components/pusher')(config);
 
@@ -32,7 +32,7 @@ module.exports = function (config, passport, bodyParser) {
             });
             return res.status(200).json(result);
         }))
-        .post(async(function (req, res) {
+        .post(async(function (req, res, next) {
             var content = req.body;
             if (!content) {
                 return next(new HttpError(400, 'Invalid or missing request content.'));
@@ -67,13 +67,13 @@ module.exports = function (config, passport, bodyParser) {
 
     router.route('/quizzes/:id')
         .all(passport.authenticate('basic', {session: false}))
-        .get(async(function (req, res) {
+        .get(async(function (req, res, next) {
             res.json(req.quiz.getMinimalInfo());
         }));
 
     router.route('/quizzes/:id/questions')
         .all(passport.authenticate('basic', {session: false}))
-        .get(async(function (req, res) {
+        .get(async(function (req, res, next) {
             var quiz = req.quiz;
             // Check if quiz has due time.
             var now = new Date();
@@ -93,7 +93,7 @@ module.exports = function (config, passport, bodyParser) {
 
     router.route('/quizzes/:id/answers')
         .all(passport.authenticate('basic', {session: false}))
-        .get(async(function (req, res) {
+        .get(async(function (req, res, next) {
             var quizId = req.quiz.id;
             var answers = await(QuizAnswer.find({quiz: quizId}));
 
@@ -106,7 +106,7 @@ module.exports = function (config, passport, bodyParser) {
             });
             return res.status(200).json(result);
         }))
-        .post(async(function (req, res) {
+        .post(async(function (req, res, next) {
             var quizId = req.quiz.id;
             var content = req.body;
             var answer = QuizAnswer({
@@ -123,7 +123,7 @@ module.exports = function (config, passport, bodyParser) {
 
     router.route('/quizzes/:id/publish')
         .all(passport.authenticate('basic', {session: false}))
-        .post(async(function (req, res) {
+        .post(async(function (req, res, next) {
             var quiz = req.quiz;
             var text = req.body.text;
 
@@ -142,5 +142,30 @@ module.exports = function (config, passport, bodyParser) {
             }
         }));
 
+    router.route('/quizzes/:id/results')
+        .all(passport.authenticate('basic', {session: false}))
+        .get(async(function (req, res, next) {
+                return res.status(501).json();
+                
+                //var quiz = req.quiz;
+                //var questions = quiz.questions;
+                //var userAnswers = await(QuizAnswer.find({quiz: quiz.id}));
+                //var result = [];
+                //
+                //for (var i = 0; i < userAnswers.length; i++) {
+                //    var score = 0;
+                //    for (var j = 0; j < questions.length; j++) {
+                //        var answer = userAnswers[i];
+                //        var isCorrect = answer.choice === question[i].correctAnswerIndex;
+                //        if (isCorrect) {
+                //            score++;
+                //        }
+                //    }
+                //}
+            }
+        ))
+    ;
+
     return router;
-};
+}
+;

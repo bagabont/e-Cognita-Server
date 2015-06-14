@@ -4,10 +4,9 @@ var http = require('http'),
 
 var env = process.env.NODE_ENV || 'development';
 var config = require('./config/config')[env];
-
 var app = express();
 
-// Load configuration
+// Load configurations
 require('./config/mongoose')(config);
 require('./config/passport')(passport);
 require('./config/express')(config, app, passport);
