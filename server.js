@@ -12,15 +12,6 @@ require('./config/mongoose')(config);
 require('./config/passport')(passport);
 require('./config/express')(config, app, passport);
 
-var server;
-
-if (env === "production") {
-  server = http.createServer(app);
-}
-else {
-  server = http.createServer(app);
-}
+var server = http.createServer(app);
 
 module.exports = server;
-
-
