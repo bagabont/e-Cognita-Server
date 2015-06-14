@@ -37,7 +37,7 @@ module.exports = function (passport) {
             var user = await(User.findOne({_id: req.user.id}));
             var index = user.enrollments.indexOf(courseId);
             if (index > -1) {
-                return next(400, 'User is already enrolled in the course.');
+                return next(new HttpError(400, 'User is already enrolled in the course.'));
             }
             else {
                 user.enrollments.push(courseId);
@@ -52,6 +52,7 @@ module.exports = function (passport) {
             if (index > -1) {
                 user.enrollments.splice(index, 1);
                 await(user.save());
+
                 return res.status(204).json();
             }
             return next(new HttpError(404, 'Course not found in enrollments list.'));
