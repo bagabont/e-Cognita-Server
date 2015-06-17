@@ -62,7 +62,7 @@ module.exports = function (config, passport) {
     router.route('/quizzes/:id')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
-            res.json(req.quiz.toQuizJson());
+            res.json(await(req.quiz.toQuizJsonAsync()));
         }));
 
     router.route('/quizzes/:id/questions')
