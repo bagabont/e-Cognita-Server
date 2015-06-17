@@ -7,7 +7,8 @@ var QuizSolution = new Schema({
     author: {type: Schema.ObjectId, required: true},
     answers: [{
         question: {type: Schema.ObjectId, required: true},
-        choice: {type: Number}
+        choice: {type: Number},
+        correct: {type: Number}
     }]
 });
 

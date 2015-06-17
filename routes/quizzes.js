@@ -1,5 +1,6 @@
 var router = require('express').Router(),
     Quiz = require('../models/quiz'),
+    User = require('../models/user'),
     QuizSolution = require('../models/quiz-solution'),
     HttpError = require('../components/http-error'),
     Course = require('../models/course'),
@@ -62,7 +63,13 @@ module.exports = function (config, passport) {
     router.route('/quizzes/:id')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
-            res.json(await(req.quiz.toQuizJsonAsync()));
+            try {
+                var result = await(req.quiz.toQuizJsonAsync());
+                return res.json(result);
+            }
+            catch (err) {
+                next(err)
+            }
         }));
 
     router.route('/quizzes/:id/questions')
@@ -101,19 +108,34 @@ module.exports = function (config, passport) {
             return res.status(200).json(result);
         }))
         .post(async(function (req, res, next) {
-            var quizId = req.quiz.id;
-            var content = req.body;
-            var answer = QuizSolution({
-                quiz: quizId,
-                author: req.user.id,
-                answers: content
-            });
+                var quiz = req.quiz;
+                var answers = req.body;
 
-            // save to DB
-            await(answer.save());
+                for (var i = 0; i < answers.length; i++) {
+                    var answer = answers[i];
 
-            return res.status(204).json();
-        }));
+                    for (var j = 0; j < quiz.questions.length; j++) {
+                        var question = quiz.questions[j];
+
+                        if (question.id == answer.question) {
+                            answer.correct = question.correctAnswerIndex;
+                        }
+                    }
+                }
+
+                var solution = QuizSolution({
+                    quiz: quiz.id,
+                    author: req.user.id,
+                    answers: answers
+                });
+
+                // save to DB
+                await(solution.save());
+
+                return res.status(204).json();
+            }
+        ))
+    ;
 
     router.route('/quizzes/:id/publish/:overwrite')
         .all(passport.authenticate('basic', {session: false}))
@@ -140,23 +162,29 @@ module.exports = function (config, passport) {
     router.route('/quizzes/:id/results')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
-                return res.status(501).json();
+                var quiz = req.quiz;
+                var results = [];
+                var solutions = await(QuizSolution.find({quiz: quiz.id}));
+                for (var i = 0; i < solutions.length; i++) {
+                    var solution = solutions[i];
+                    var user = await(User.findById(solution.author));
+                    var result = {
+                        user: user.toUserJson(),
+                        correctAnswers: 0,
+                        totalQuestions: 0
+                    };
+                    var answers = solution.answers;
+                    for (var j = 0; j < answers.length; j++) {
+                        result.totalQuestions++;
+                        var answer = answers[j];
+                        if (answer.choice === answer.correct) {
+                            result.correctAnswers++;
+                        }
+                    }
+                    results.push(result);
+                }
 
-                //var quiz = req.quiz;
-                //var questions = quiz.questions;
-                //var userAnswers = await(QuizSolution.find({quiz: quiz.id}));
-                //var result = [];
-                //
-                //for (var i = 0; i < userAnswers.length; i++) {
-                //    var score = 0;
-                //    for (var j = 0; j < questions.length; j++) {
-                //        var answer = userAnswers[i];
-                //        var isCorrect = answer.choice === question[i].correctAnswerIndex;
-                //        if (isCorrect) {
-                //            score++;
-                //        }
-                //    }
-                //}
+                res.send(results);
             }
         ));
 
