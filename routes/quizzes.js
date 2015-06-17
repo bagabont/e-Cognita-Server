@@ -170,17 +170,8 @@ module.exports = function (config, passport) {
                     var user = await(User.findById(solution.author));
                     var result = {
                         user: user.toUserJson(),
-                        correctAnswers: 0,
-                        totalQuestions: 0
+                        answers: solution.answers
                     };
-                    var answers = solution.answers;
-                    for (var j = 0; j < answers.length; j++) {
-                        result.totalQuestions++;
-                        var answer = answers[j];
-                        if (answer.choice === answer.correct) {
-                            result.correctAnswers++;
-                        }
-                    }
                     results.push(result);
                 }
 

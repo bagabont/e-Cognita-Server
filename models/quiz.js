@@ -35,7 +35,7 @@ Quiz.methods.toQuizJsonAsync = async(function () {
         from: this.from,
         due: this.due,
         date_solved: dateSolved,
-        date_published: this.datePublished
+        date_published: !this.datePublished ? null : this.datePublished
     }
 });
 
