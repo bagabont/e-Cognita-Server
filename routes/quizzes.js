@@ -1,6 +1,6 @@
 var router = require('express').Router(),
     Quiz = require('../models/quiz'),
-    QuizAnswer = require('../models/quiz-answer'),
+    QuizSolution = require('../models/quiz-solution'),
     HttpError = require('../components/http-error'),
     Course = require('../models/course'),
     async = require('asyncawait/async'),
@@ -21,15 +21,9 @@ module.exports = function (config, passport) {
             else {
                 quizzes = await(Quiz.find({course_id: courseId}));
             }
-            var result = quizzes.map(function (model) {
-                return {
-                    id: model._id,
-                    created: model.created,
-                    course_id: model.course_id,
-                    title: model.title,
-                    description: model.description
-                }
-            });
+            var result = await(quizzes.map(function (quiz) {
+                return quiz.toQuizJsonAsync();
+            }));
             return res.status(200).json(result);
         }))
         .post(async(function (req, res, next) {
@@ -46,7 +40,7 @@ module.exports = function (config, passport) {
             var courseId = content.course_id;
             var course = await(Course.findById(courseId));
             if (!course) {
-                return next(new HttpError(400, 'Cannot find course with id: ' + courseId + '.'));
+                return next(new HttpError(400, 'No course with id: ' + courseId + '.'));
             }
             var quiz = new Quiz(content);
             await(quiz.save());
@@ -68,7 +62,7 @@ module.exports = function (config, passport) {
     router.route('/quizzes/:id')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
-            res.json(req.quiz.getMinimalInfo());
+            res.json(req.quiz.toQuizJson());
         }));
 
     router.route('/quizzes/:id/questions')
@@ -95,7 +89,7 @@ module.exports = function (config, passport) {
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
             var quizId = req.quiz.id;
-            var answers = await(QuizAnswer.find({quiz: quizId}));
+            var answers = await(QuizSolution.find({quiz: quizId}));
 
             var result = answers.map(function (answer) {
                 return {
@@ -109,7 +103,7 @@ module.exports = function (config, passport) {
         .post(async(function (req, res, next) {
             var quizId = req.quiz.id;
             var content = req.body;
-            var answer = QuizAnswer({
+            var answer = QuizSolution({
                 quiz: quizId,
                 author: req.user.id,
                 answers: content
@@ -150,7 +144,7 @@ module.exports = function (config, passport) {
 
                 //var quiz = req.quiz;
                 //var questions = quiz.questions;
-                //var userAnswers = await(QuizAnswer.find({quiz: quiz.id}));
+                //var userAnswers = await(QuizSolution.find({quiz: quiz.id}));
                 //var result = [];
                 //
                 //for (var i = 0; i < userAnswers.length; i++) {
@@ -164,8 +158,7 @@ module.exports = function (config, passport) {
                 //    }
                 //}
             }
-        ))
-    ;
+        ));
 
     return router;
 }

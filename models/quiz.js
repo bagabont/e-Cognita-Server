@@ -1,5 +1,8 @@
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    QuizSolution = require('../models/quiz-solution'),
+    Schema = mongoose.Schema,
+    async = require('asyncawait/async'),
+    await = require('asyncawait/await');
 
 var Quiz = new Schema({
     created: {type: Date, default: Date.now},
@@ -16,17 +19,24 @@ var Quiz = new Schema({
     }]
 });
 
-Quiz.methods.getMinimalInfo = function () {
+Quiz.methods.toQuizJsonAsync = async(function () {
+    var self = this;
+    var sol = await(QuizSolution.findOne({quiz: self._id}));
+    var dateSolved;
+    if (sol) {
+        dateSolved = sol.created;
+    }
     return {
-        id: this._id,
+        id: self._id,
         created: this.created,
         title: this.title,
+        course: this.course_id,
+        description: this.description,
         from: this.from,
         due: this.due,
-        published: this.datePublished,
-        course: this.course_id,
-        description: this.description
-    };
-};
+        date_solved: dateSolved,
+        date_published: this.datePublished
+    }
+});
 
 module.exports = mongoose.model('quiz', Quiz);
