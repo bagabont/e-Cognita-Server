@@ -151,7 +151,7 @@ module.exports = function (config, passport) {
             await(messenger.sendAsync(quiz, text));
             quiz.datePublished = new Date();
             await(quiz.save());
-            return res.status(200).json(result);
+            return res.status(200).json();
         }));
 
     router.route('/quizzes/:id/solutions')
