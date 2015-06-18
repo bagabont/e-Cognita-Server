@@ -21,7 +21,7 @@ Pusher.prototype.sendAsync = async(function (quiz, text, callback) {
     // find enrolled users
     var users = await(User.find({enrollments: course._id}));
     if (!users || users.length == 0) {
-        return;
+        return false;
     }
     var tokens = users.map(function (user) {
         return user.pushToken;
@@ -31,9 +31,11 @@ Pusher.prototype.sendAsync = async(function (quiz, text, callback) {
     message.addData('quiz_id', quiz.id);
     message.addData('text', text);
 
-    return await(function (callback) {
+    var result = await(function (callback) {
         return gcmSender.send(message, tokens, callback);
     });
+
+    return result.success > 0;
 });
 
 module.exports = function (config) {

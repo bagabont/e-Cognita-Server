@@ -148,15 +148,10 @@ module.exports = function (config, passport) {
             if (isPublished && overwrite !== 'true') {
                 return next(new HttpError(403, 'Quiz is already published.'));
             }
-            var result = await(messenger.sendAsync(quiz, text));
-            if (result.success > 0) {
-                quiz.datePublished = new Date();
-                await(quiz.save());
-                return res.status(200).json(result);
-            }
-            else {
-                return next(new HttpError(503, 'No successful notifications.'));
-            }
+            await(messenger.sendAsync(quiz, text));
+            quiz.datePublished = new Date();
+            await(quiz.save());
+            return res.status(200).json(result);
         }));
 
     router.route('/quizzes/:id/solutions')
