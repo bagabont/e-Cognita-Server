@@ -137,12 +137,12 @@ module.exports = function (config, passport) {
         ))
     ;
 
-    router.route('/quizzes/:id/publish/:overwrite')
+    router.route('/quizzes/:id/publish')
         .all(passport.authenticate('basic', {session: false}))
         .post(async(function (req, res, next) {
             var quiz = req.quiz;
             var text = req.body.text;
-            var overwrite = req.params.overwrite;
+            var overwrite = req.query.overwrite;
 
             var isPublished = quiz.datePublished !== undefined;
             if (isPublished && overwrite !== 'true') {
@@ -159,22 +159,22 @@ module.exports = function (config, passport) {
             }
         }));
 
-    router.route('/quizzes/:id/results')
+    router.route('/quizzes/:id/solutions')
         .all(passport.authenticate('basic', {session: false}))
         .get(async(function (req, res, next) {
                 var quiz = req.quiz;
                 var results = [];
                 var solutions = await(QuizSolution.find({quiz: quiz.id}));
                 for (var i = 0; i < solutions.length; i++) {
-                    var solution = solutions[i];
-                    var user = await(User.findById(solution.author));
+                    var userSolution = solutions[i];
+                    var user = await(User.findById(userSolution.author));
+
                     var result = {
                         user: user.toUserJson(),
-                        answers: solution.answers
+                        solution: quiz.getResult(userSolution.answers)
                     };
                     results.push(result);
                 }
-
                 res.send(results);
             }
         ));

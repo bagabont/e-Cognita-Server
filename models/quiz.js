@@ -22,7 +22,7 @@ var Quiz = new Schema({
 Quiz.methods.toQuizJsonAsync = async(function () {
     var self = this;
     var sol = await(QuizSolution.findOne({quiz: self._id}));
-    var dateSolved;
+    var dateSolved = null;
     if (sol) {
         dateSolved = sol.created;
     }
@@ -38,5 +38,17 @@ Quiz.methods.toQuizJsonAsync = async(function () {
         date_published: !this.datePublished ? null : this.datePublished
     }
 });
+
+Quiz.methods.getResult = function (answers) {
+    var self = this;
+    var result = self.questions.map((function (question) {
+        var choice = answers.find(function (answer) {
+            return answer.question == question.id;
+        })
+        return choice;
+    }));
+
+    return result;
+};
 
 module.exports = mongoose.model('quiz', Quiz);
