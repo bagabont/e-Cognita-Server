@@ -1,19 +1,22 @@
-var bodyParser = require('body-parser');
+var bodyParser = require('body-parser'),
+    passport = require('passport'),
+    authController = require('../controllers/auth');
 
-module.exports = function (config, app, passport) {
+module.exports = function (config, app) {
+    // remove excess headers
     app.disable('x-powered-by');
     app.disable('etag');
-    app.use(passport.initialize());
 
-    // add body-parser middleware
+    // add middleware
+    app.use(passport.initialize());
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
 
     // require routes
     var users = require('../routes/users')();
-    var courses = require('../routes/courses')(passport);
-    var account = require('../routes/account')(passport);
-    var quizzes = require('../routes/quizzes')(config, passport);
+    var account = require('../routes/account')(authController);
+    var courses = require('../routes/courses')(authController);
+    var quizzes = require('../routes/quizzes')(authController);
 
     // set API routers
     app.use('/api/', users);
@@ -28,10 +31,6 @@ module.exports = function (config, app, passport) {
         err.url = req.url;
         next(err);
     });
-
-    ////
-    // error handlers
-    /////
 
     // development error handler
     // will print stack trace

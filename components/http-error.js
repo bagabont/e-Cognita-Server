@@ -3,6 +3,7 @@ var HttpError = function (status, message) {
     this.message = message;
     Error.call(this, message);
 };
+
 HttpError.prototype = Object.create(Error.prototype);
 HttpError.constructor = new HttpError();
 

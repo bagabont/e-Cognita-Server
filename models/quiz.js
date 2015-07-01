@@ -1,54 +1,25 @@
 var mongoose = require('mongoose'),
-    QuizSolution = require('../models/quiz-solution'),
-    Schema = mongoose.Schema,
-    async = require('asyncawait/async'),
-    await = require('asyncawait/await');
+    Schema = mongoose.Schema;
 
 var Quiz = new Schema({
-    created: {type: Date, default: Date.now},
-    title: {type: String, required: true},
-    from: {type: Date},
-    due: {type: Date},
-    datePublished: {type: Date},
-    description: {type: String},
     course_id: {type: Schema.ObjectId, required: true},
+    date_created: {type: Date},
+    date_published: {type: Date},
+    date_due: {type: Date},
+    title: {type: String, required: true},
+    description: {type: String},
     questions: [{
-        text: {type: String, required: true},
+        question: {type: String, required: true},
         answers: {type: [String], required: true},
-        correctAnswerIndex: {type: Number, required: true}
+        correct: {type: Number, required: true}
     }]
 });
 
-Quiz.methods.toQuizJsonAsync = async(function () {
-    var self = this;
-    var sol = await(QuizSolution.findOne({quiz: self._id}));
-    var dateSolved = null;
-    if (sol) {
-        dateSolved = sol.created;
+Quiz.pre('save', function (next) {
+    if (!this.date_created) {
+        this.date_created = Date.now;
     }
-    return {
-        id: self._id,
-        created: this.created,
-        title: this.title,
-        course: this.course_id,
-        description: this.description,
-        from: this.from,
-        due: this.due,
-        date_solved: dateSolved,
-        date_published: !this.datePublished ? null : this.datePublished
-    }
+    next();
 });
 
-Quiz.methods.getResult = function (answers) {
-    var self = this;
-    var result = self.questions.map((function (question) {
-        var choice = answers.find(function (answer) {
-            return answer.question == question.id;
-        })
-        return choice;
-    }));
-
-    return result;
-};
-
-module.exports = mongoose.model('quiz', Quiz);
+module.exports = mongoose.model('Quiz', Quiz);

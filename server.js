@@ -1,5 +1,4 @@
 var http = require('http'),
-    passport = require('passport'),
     express = require('express');
 
 var env = process.env.NODE_ENV || 'development';
@@ -8,9 +7,7 @@ var app = express();
 
 // Load configurations
 require('./config/mongoose')(config);
-require('./config/passport')(passport);
-require('./config/express')(config, app, passport);
+require('./config/express')(config, app);
 
-var server = http.createServer(app);
-
-module.exports = server;
+// Create server
+module.exports = http.createServer(app);

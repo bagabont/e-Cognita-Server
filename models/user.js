@@ -3,14 +3,21 @@ var crypto = require('crypto'),
     Schema = mongoose.Schema;
 
 var User = new Schema({
-    created: {type: Date, default: Date.now},
+    date_created: {type: Date},
     email: {type: String, unique: true, required: true},
-    pushToken: {type: String},
-    hashedPassword: {type: String, required: true},
+    push_token: {type: String},
+    hashed_password: {type: String, required: true},
     salt: {type: String, required: true},
-    firstName: {type: String},
-    lastName: {type: String},
+    first_name: {type: String},
+    last_name: {type: String},
     enrollments: {type: [Schema.ObjectId]}
+});
+
+User.pre('save', function (next) {
+    if (!this.date_created) {
+        this.date_created = Date.now;
+    }
+    next();
 });
 
 User.methods.encryptPassword = function (password) {
@@ -21,23 +28,14 @@ User.virtual('password')
     .set(function (password) {
         this._plainPassword = password;
         this.salt = crypto.randomBytes(128).toString('base64');
-        this.hashedPassword = this.encryptPassword(password);
+        this.hashed_password = this.encryptPassword(password);
     })
     .get(function () {
         return this._plainPassword;
     });
 
 User.methods.checkPassword = function (password) {
-    return this.encryptPassword(password) === this.hashedPassword;
+    return this.encryptPassword(password) === this.hashed_password;
 };
 
-User.methods.toUserJson = function () {
-    var self = this;
-    return {
-        id: self.id,
-        first_name: self.firstName,
-        last_name: self.lastName
-    }
-};
-
-module.exports = mongoose.model('user', User);
+module.exports = mongoose.model('User', User);

@@ -2,10 +2,17 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 var Course = new Schema({
-    created: {type: Date, default: Date.now},
-    author: {type: Schema.ObjectId},
+    date_created: {type: Date, default: Date.now},
+    author_id: {type: Schema.ObjectId},
     title: {type: String, unique: true, required: true},
     description: {type: String}
 });
 
-module.exports = mongoose.model('course', Course);
+Course.pre('save', function (next) {
+    if (!this.date_created) {
+        this.date_created = Date.now;
+    }
+    next();
+});
+
+module.exports = mongoose.model('Course', Course);
