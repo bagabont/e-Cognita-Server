@@ -1,5 +1,4 @@
 var router = require('express').Router(),
-    QuizSolution = require('../models/solution'),
     QuizController = require('../controllers/quiz');
 
 module.exports = function (authController) {
@@ -21,20 +20,9 @@ module.exports = function (authController) {
         .all(authController.isAuthenticated)
         .get(QuizController.getQuestions);
 
-    router.route('/quizzes/:id/answers')
+    router.route('/quizzes/:id/solutions')
         .all(authController.isAuthenticated)
-        .get(QuizController.getAnswers)
-        .post(function (req, res, next) {
-            var quiz = req.quiz;
-            var answers = req.body;
-            var solution = QuizSolution({
-                quiz: quiz.id,
-                author: req.user.id,
-                answers: answers
-            });
-            // save to DB
-            await(solution.save());
-            return res.status(204).json();
-        });
+        .get(QuizController.getSolutions)
+        .post(QuizController.submitSolution);
     return router;
 };

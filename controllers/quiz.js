@@ -104,7 +104,7 @@ exports.getQuestions = function (req, res, next) {
     });
 };
 
-exports.getAnswers = function (req, res, next) {
+exports.getSolutions = function (req, res, next) {
     var quizId = req.params.id;
     Solution.find({quiz: quizId}, function (err, solutions) {
         if (err) {
@@ -118,5 +118,20 @@ exports.getAnswers = function (req, res, next) {
             }
         });
         return res.status(200).json(result);
+    });
+};
+
+exports.submitSolution = function (req, res, next) {
+    var quizId = req.params.id;
+    var solutionData = {
+        quiz: quizId,
+        author: req.user.id,
+        answers: req.body
+    };
+    Solution.create(solutionData, function (err) {
+        if (err) {
+            return next(err);
+        }
+        return res.status(204).send();
     });
 };
