@@ -1,9 +1,12 @@
 var HttpError = require('../components/http-error'),
     User = require('../models/user'),
     validator = require('validator'),
+    async = require('asyncawait/async'),
+    await = require('asyncawait/await'),
     Course = require('../models/course'),
     Solution = require('../models/solution'),
     Quiz = require('../models/quiz'),
+    _ = require('underscore'),
     gcm = require('node-gcm');
 
 var env = process.env.NODE_ENV || 'development';
@@ -13,11 +16,11 @@ var gcmSender = new gcm.Sender(config.gcmApiKey);
 function formatQuiz(quiz) {
     return {
         id: quiz.id,
-        date_created: quiz.date_created,
+        date_created: quiz.date_created || null,
         title: quiz.title,
         course_id: quiz.course_id,
-        description: quiz.description,
-        date_due: quiz.date_due,
+        description: quiz.description || null,
+        date_due: quiz.date_due || null,
         date_published: quiz.date_published || null
     }
 }
@@ -106,41 +109,13 @@ exports.getQuestions = function (req, res, next) {
         }
         var questions = quiz.questions;
         var result = questions.map(function (question) {
-            return {id: question._id, text: question.text, choices: question.choices}
-        });
-        return res.status(200).json(result);
-    });
-};
-
-exports.getSolutions = function (req, res, next) {
-    var quizId = req.params.id;
-    Solution.find({quiz: quizId}, function (err, solutions) {
-        if (err) {
-            return next(err);
-        }
-        var result = solutions.map(function (solution) {
             return {
-                author: solution.author,
-                created: solution.created,
-                choices: solution.choices
+                id: question._id,
+                question: question.question,
+                choices: question.choices
             }
         });
         return res.status(200).json(result);
-    });
-};
-
-exports.submitSolution = function (req, res, next) {
-    var quizId = req.params.id;
-    var solutionData = {
-        quiz: quizId,
-        author: req.user.id,
-        solution: req.body
-    };
-    Solution.create(solutionData, function (err) {
-        if (err) {
-            return next(err);
-        }
-        return res.status(204).send();
     });
 };
 
@@ -196,4 +171,84 @@ exports.publishQuiz = function (req, res, next) {
             });
         });
     });
+};
+
+exports.getSolutions = function (req, res, next) {
+    Solution.find({quiz_id: req.params.id}, function (err, solutions) {
+        if (err) {
+            return next(err);
+        }
+        for (var i = 0; i < solutions.length; i++) {
+            var userId = solutions[i].user_id;
+            User.findById(userId, function (err, user) {
+                if (err) {
+                    return;
+                }
+                var result = solutions.map(function (solution) {
+                    return {
+                        user_id: solution.user_id,
+                        date_submitted: solution.date_submitted,
+                        solutions: solution.solutions
+                    }
+                });
+                return res.status(200).json(result);
+            });
+        }
+    });
+};
+
+exports.submitSolution = function (req, res, next) {
+    var quizId = req.params.id;
+    var solutionData = {
+        quiz: quizId,
+        author: req.user.id,
+        solution: req.body
+    };
+    Solution.create(solutionData, function (err) {
+        if (err) {
+            return next(err);
+        }
+        return res.status(204).send();
+    });
+};
+
+
+function getSelection(question, choices) {
+    var selection = _.find(choices, function (solution) {
+        if (solution.question == question.id) {
+            return solution;
+        }
+    });
+    return selection ? selection.choice : null;
+}
+
+function getSolution(choices) {
+    var self = this;
+    var solutions = [];
+    for (var i = 0; i < self.questions.length; i++) {
+        var question = self.questions[i];
+        solutions.push({
+            question: question.question,
+            choices: question.choices,
+            correct: question.correct,
+            selected: getSelection(question, choices)
+        });
+    }
+    return solutions;
+}
+
+exports.getSolutionsByQuizId = function (req, res, next) {
+    var quiz = req.quiz;
+    var results = [];
+    var solutions = await(QuizSolution.find({quiz: quiz.id}));
+
+    for (var i = 0; i < solutions.length; i++) {
+        var userSolution = solutions[i];
+        var user = await(User.findById(userSolution.author));
+        results.push({
+            user: user.toUserJson(),
+            solution: quiz.getSolution(userSolution.choices)
+        });
+    }
+    res.send(results);
 };
