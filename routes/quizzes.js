@@ -12,9 +12,9 @@ module.exports = function (authController) {
         .all(authController.isAuthenticated)
         .get(QuizController.getQuizById);
 
-    router.route('/quizzes/:id/publish')
-        .all(authController.isAuthenticated)
-        .post(QuizController.publishQuiz);
+    //router.route('/quizzes/:id/publish')
+    //    .all(authController.isAuthenticated)
+    //    .post(QuizController.publishQuiz);
 
     router.route('/quizzes/:id/questions')
         .all(authController.isAuthenticated)
@@ -24,5 +24,6 @@ module.exports = function (authController) {
         .all(authController.isAuthenticated)
         .get(QuizController.getSolutions)
         .post(QuizController.submitSolution);
+
     return router;
 };

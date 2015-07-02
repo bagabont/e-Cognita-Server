@@ -1,10 +1,11 @@
 var gcm = require('node-gcm').Sender,
     Course = require('../models/course'),
+    config = require('../config/config'),
     Quiz = require('../models/quiz');
 
-exports.publishQuiz = function (req, res, next) {
-    var gcmSender = new gcm.Sender(config.gcmApiKey);
+var gcmSender = new gcm.Sender(config.gcmApiKey);
 
+exports.publishQuiz = function (req, res, next) {
     Quiz.findById(req.params.id, function (err, quiz) {
         if (err) {
             return next(err);
@@ -36,7 +37,7 @@ exports.publishQuiz = function (req, res, next) {
             var tokens = users.map(function (user) {
                 return user.push_token;
             });
-            gcm.sendNoRetry(gcmMessage, tokens, function (result) {
+            gcmSender.sendNoRetry(gcmMessage, tokens, function (result) {
                 // if result is undefined or no messages
                 // were successfully sent,return false
                 var success = result ? result.success > 0 : false;
