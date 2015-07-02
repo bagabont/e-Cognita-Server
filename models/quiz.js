@@ -15,6 +15,18 @@ var Quiz = new Schema({
     }]
 });
 
+Quiz.methods.hasQuestions = function () {
+    if (!this.questions || this.questions.length <= 0) {
+        return false;
+    }
+    for (var i = 0; i < this.questions.length; i++) {
+        var question = this.questions[i];
+        if (!question.choices.length || question.choices.length <= 0) {
+            return false;
+        }
+    }
+};
+
 Quiz.pre('save', function (next) {
     if (!this.date_created) {
         this.date_created = Date.now;

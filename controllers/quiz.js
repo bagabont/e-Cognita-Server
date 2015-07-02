@@ -78,7 +78,7 @@ exports.createQuiz = function (req, res, next) {
 };
 
 exports.getQuizById = function (req, res, next) {
-    Quiz.findById(id, function (err, quiz) {
+    Quiz.findById(req.params.id, function (err, quiz) {
         if (err) {
             return next(err);
         }
@@ -160,7 +160,9 @@ exports.publishQuiz = function (req, res, next) {
         if (isPublished && overwrite !== 'true') {
             return next(new HttpError(403, 'Quiz is already published.'));
         }
-
+        if (!quiz.hasQuestions()) {
+            return next(new HttpError(400, 'Quiz without any questions cannot be published.'))
+        }
         // find enrolled users
         User.find({enrollments: quiz.course_id}, function (err, users) {
             if (err) {
@@ -176,13 +178,20 @@ exports.publishQuiz = function (req, res, next) {
             var tokens = users.map(function (user) {
                 return user.push_token || '';
             });
+
             gcmSender.send(gcmMessage, tokens, function (err, result) {
+                if (err) {
+                    return next(err);
+                }
                 quiz.date_published = new Date();
                 quiz.save(function (err) {
                     if (err) {
                         return next(err);
                     }
-                    return res.status(200).json({result: result});
+                    return res.status(200).json({
+                        result: result,
+                        error: err
+                    });
                 })
             });
         });
