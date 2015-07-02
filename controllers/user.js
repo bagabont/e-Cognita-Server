@@ -1,40 +1,46 @@
 var validator = require('validator'),
     User = require('../models/user');
 
-function validateUser(user) {
-    var validationErrors = [];
-    if (!validator.isEmail(user.email)) {
-        validationErrors.push('Invalid email.');
+function validateRegisterUserRequest(requestBody) {
+    var errors = [];
+    if (!validator.isEmail(requestBody.email)) {
+        errors.push('Invalid email.');
     }
-    if (!validator.isLength(user.password, 3)) {
-        validationErrors.push('Invalid password.');
+    if (!validator.isLength(requestBody.password, 3)) {
+        errors.push('Invalid password.');
     }
-    if (!validator.isLength(user.first_name, 1)) {
-        validationErrors.push('Invalid first name.');
+    if (!validator.isLength(requestBody.firstname, 1)) {
+        errors.push('Invalid first name.');
     }
-    if (!validator.isLength(user.last_name, 1)) {
-        validationErrors.push('Invalid last name.');
+    if (!validator.isLength(requestBody.lastname, 1)) {
+        errors.push('Invalid last name.');
     }
-    if (validationErrors.length > 0) {
-        return {success: false, errors: validationErrors.join()};
+    if (errors.length > 0) {
+        return {success: false, errors: errors.join()};
     }
     return {success: true, errors: null};
 }
 
 exports.register = function (req, res, next) {
-    var userData = req.body;
-    var result = validateUser(userData);
+    var requestBody = req.body;
+    var result = validateRegisterUserRequest(requestBody);
     if (!result.success) {
         return next(new HttpError(400, result.errors))
     }
-    User.findOne({email: userData.email}, function (err, user) {
+    User.findOne({email: requestBody.email}, function (err, user) {
         if (err) {
             return next(err);
         }
         if (user) {
-            return next(new HttpError(409, 'Email: ' + userData.email + ', already registered.'));
+            return next(new HttpError(409, 'Email: ' + requestBody.email + ', already registered.'));
         }
-        User.create(userData, function (err) {
+
+        User.create({
+            email: requestBody.email,
+            first_name: requestBody.firstname,
+            last_name: requestBody.lastname,
+            password: requestBody.password
+        }, function (err) {
             if (err) {
                 return next(err);
             }
