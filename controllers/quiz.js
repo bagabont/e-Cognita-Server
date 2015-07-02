@@ -1,5 +1,6 @@
 var HttpError = require('../components/http-error'),
     User = require('../models/user'),
+    validator = require('validator'),
     Course = require('../models/course'),
     Solution = require('../models/solution'),
     Quiz = require('../models/quiz');
@@ -62,8 +63,11 @@ exports.createQuiz = function (req, res, next) {
         if (!course) {
             return next(new HttpError(404, 'The course specified for this quiz cannot be found.'));
         }
-        Quiz.create(quizData, function (err, quiz) {
-            return res.json(formatQuiz(quiz));
+        Quiz.create(quizData, function (err) {
+            if (err) {
+                return next(err);
+            }
+            return res.status(201).send();
         });
     })
 };
