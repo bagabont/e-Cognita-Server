@@ -341,8 +341,30 @@ id       ID of quiz to publish
 **Response:**
 ```httph 
 Status:
-200 OK                 - Quiz successfully published.
-503 Service Unavailable     - No subscribers notified.
+200 OK      - Quiz successfully published.
+```
+
+
+### Close Quiz
+Closes a quiz and notifies all subscribed users.
+
+**Request:**
+```httph
+POST /api/quizzes/:id/close
+Content-Type: x-www-form-urlencoded
+
+form-data:  
+message        required    (Text message to the subscribers)  
+
+
+params:  
+id       ID of quiz to publish
+```
+
+**Response:**
+```httph 
+Status:
+200 OK      - Quiz successfully closed.
 ```
 
 
@@ -379,7 +401,7 @@ Status:
 ```
 
 
-### Send answers
+### Submit solution
 **Request:**
 ```httph
 POST /api/quizzes/:id/solutions
@@ -405,7 +427,8 @@ id       Quiz id
 **Response:**
 ```httph 
 Status:
-204 No Content      - Answers successfully sent.
+204 No Content      - Solution successfully submitted.
+403 Forbidden       - Quiz is closed or a solution has already been submitted by this user.
 ```
 
 
