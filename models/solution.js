@@ -5,10 +5,10 @@ var Solution = new Schema({
     quiz_id: {type: Schema.ObjectId, required: true},
     user_id: {type: Schema.ObjectId, required: true},
     date_submitted: {type: Date},
-    selections: [{
+    solutions: [{
         question_id: {type: Schema.ObjectId, required: true},
         selected: {type: Number},
-        time: {type: Number}
+        time_answered: {type: Number}
     }]
 });
 
