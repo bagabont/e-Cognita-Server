@@ -4,7 +4,7 @@ var HttpError = require('../components/http-error'),
     Course = require('../models/course'),
     Solution = require('../models/solution'),
     Quiz = require('../models/quiz'),
-    gcm = require('node-gcm').Sender;
+    gcm = require('node-gcm');
 
 var env = process.env.NODE_ENV || 'development';
 var config = config = require('../config/config')[env];
