@@ -174,9 +174,9 @@ exports.publishQuiz = function (req, res, next) {
             gcmMessage.addData('quiz_id', quiz.id);
             gcmMessage.addData('message', message);
             var tokens = users.map(function (user) {
-                return user.push_token;
+                return user.push_token || '';
             });
-            gcmSender.sendNoRetry(gcmMessage, tokens, function (result) {
+            gcmSender.send(gcmMessage, tokens, function (err, result) {
                 // if result is undefined or no messages
                 // were successfully sent,return false
                 var success = result ? result.success > 0 : false;
