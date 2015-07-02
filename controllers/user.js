@@ -1,4 +1,5 @@
 var validator = require('validator'),
+    HttpError = require('../components/http-error'),
     User = require('../models/user');
 
 function validateRegisterUserRequest(requestBody) {
@@ -34,17 +35,33 @@ exports.register = function (req, res, next) {
         if (user) {
             return next(new HttpError(409, 'Email: ' + requestBody.email + ', already registered.'));
         }
-
-        User.create({
+        var model = {
             email: requestBody.email,
             first_name: requestBody.firstname,
             last_name: requestBody.lastname,
             password: requestBody.password
-        }, function (err) {
+        };
+        User.create(model, function (err) {
             if (err) {
                 return next(err);
             }
             return res.status(201).send();
         });
+    });
+};
+
+exports.listUsers = function (req, res, next) {
+    User.find({}, function (err, users) {
+        if (err) {
+            return next(err);
+        }
+        return res.json(users.map(function (user) {
+            return {
+                email: user.email,
+                first_name: user.firstname,
+                last_name: user.lastname,
+                password: user.password
+            }
+        }));
     });
 };
