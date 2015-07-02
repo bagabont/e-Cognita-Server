@@ -156,26 +156,23 @@ exports.unsubscribe = function (req, res, next) {
     });
 };
 
-exports.getQuizSolution = async(function (req, res, next) {
+exports.getQuizSolutionAsync = async(function (req, res, next) {
     var userId = req.user.id;
     var quizId = req.params.quiz_id;
     try {
+        var submission = await(Solution.findOne({user_id: userId}));
         var quiz = await(Quiz.findById(quizId));
-        var userSolution = await(Solution.findOne({user_id: userId}));
-
         var result = quiz.questions.map(function (question) {
             // find solution to question
-            var questionSolution = _.find(userSolution.solutions, function (sol) {
+            var answer = _.find(submission.solutions, function (sol) {
                 return sol.question_id == question.id
             });
-
             return {
                 question: question.question,
                 choices: question.choices,
                 correct: question.correct,
-                selected: questionSolution ? questionSolution.selected : null
+                selected: answer ? answer.selected : null
             };
-
         });
         res.json(result);
     }

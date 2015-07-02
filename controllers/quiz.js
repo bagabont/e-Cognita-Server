@@ -173,46 +173,47 @@ exports.publishQuiz = function (req, res, next) {
     });
 };
 
-exports.getSolutions = function (req, res, next) {
-    Solution.find({quiz_id: req.params.id}, async(function (err, solutions) {
-        if (err) {
-            return next(err);
+exports.getSolutions = async(function (req, res, next) {
+    var solutions = await(Solution.find({quiz_id: req.params.id}));
+    var result = [];
+    for (var i = 0; i < solutions.length; i++) {
+        var solution = solutions[i];
+        var userId = solution.user_id;
+        try {
+            var user = await(User.findById(userId));
+            var formattedSolutions = solution.solutions.map(function (sol) {
+                return {
+                    question_id: sol.question_id,
+                    selected: sol.selected
+                }
+            });
+            result.push({
+                user: {
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    email: user.email
+                },
+                date_submitted: solution.date_submitted,
+                solutions: formattedSolutions
+            });
+        } catch (e) {
+            console.log(e);
         }
-        var result = [];
-        for (var i = 0; i < solutions.length; i++) {
-            var solution = solutions[i];
-            var userId = solution.user_id;
-            try {
-                var user = await(User.findById(userId));
-                var formattedSolutions = solution.solutions.map(function (sol) {
-                    return {
-                        question_id: sol.question_id,
-                        selected: sol.selected
-                    }
-                });
-                var res = {
-                    user: {
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        email: user.email
-                    },
-                    date_submitted: solution.date_submitted,
-                    solutions: formattedSolutions
-                };
-                result.push(res);
-            } catch (e) {
-                //TODO
-            }
-        }
-        return res.status(200).json(result);
-    }));
-};
+    }
+    return res.status(200).json(result);
+});
 
-exports.submitSolution = function (req, res, next) {
+exports.submitSolution = async(function (req, res, next) {
     var quizId = req.params.id;
+    var userId = req.user.id;
+
+    var solution = await(Solution.findOne({quiz_id: quizId, user_id: userId}));
+    if (solution) {
+        return next(new HttpError(403, 'User has already solved this quiz.'))
+    }
     var solutionData = {
         quiz_id: quizId,
-        user_id: req.user.id,
+        user_id: userId,
         solutions: req.body
     };
     Solution.create(solutionData, function (err) {
@@ -221,4 +222,4 @@ exports.submitSolution = function (req, res, next) {
         }
         return res.status(204).send();
     });
-};
+});

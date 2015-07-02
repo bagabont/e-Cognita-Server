@@ -1,9 +1,10 @@
 # e-Cognita Server
 
+
 ## REST API
 
-### Authentication
 
+### Authentication
 The server uses basic authentication. 
 With each request you have to send an authentication header:
 
@@ -12,11 +13,11 @@ Example:
 Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 ```
 
+
 ### Register user
 Registers a user
 
 **Request:**
-
 ```httph
 POST /api/users
 Content-Type: x-www-form-urlencoded
@@ -29,12 +30,12 @@ lastname    optional
 ```
 
 **Response:**
-
 ```httph 
 Status:
 201 Created     - User successfully created
 409 Conflict    - User already exists.  
 ```
+
 
 ### Create new course
 Creates a new course.
@@ -56,6 +57,7 @@ Status:
 409 Conflict    - Course already exists
 ```
 
+
 ### Get all courses
 Gets list of all available courses
 
@@ -70,6 +72,7 @@ Status:
 200 OK
 ```
 
+
 ### Get course
 Gets a course by id
 
@@ -83,6 +86,7 @@ GET /api/courses/:id
 Status:
 200 OK
 ```
+
 
 ### Get authored courses
 Get list of courses which the authenticated user is the author for.
@@ -114,6 +118,7 @@ Status:
 ]
 ```
 
+
 ### Enroll for a course
 Enroll for a course
 
@@ -131,6 +136,7 @@ Status:
 204 No Content      - Successfully enrolled
 400 Bad Request     - Course not found
 ```
+
 
 ### Get enrolled courses
 Get list of courses which the user is enrolled for.
@@ -162,6 +168,7 @@ Status:
 ]
 ```
 
+
 ### Leave a course
 Leave a course
 
@@ -180,8 +187,9 @@ Status:
 404 Not Found       - Course not found in user's enrollments or user is already enrolled in that course.
 ```
 
-### Create new quiz
 
+### Create new quiz
+Creates a new quiz
 **Request:**
 ```httph
 POST /api/quizzes
@@ -210,19 +218,23 @@ Content-Type: application/json
 ```
 
 **Response:**
-
 ```httph
 Status:
 201 Created         - Quiz successfully created.
 400 Bad Request     - Invalid or missing parameters.
 ```
 
-### Get quiz
+
+### Get quiz by ID
+Gets a quiz by ID
 
 **Request:**
 ```httph
 GET /api/quizzes/:id
 Accept: application/json
+
+params:  
+id       Quiz ID    
 ```
 
 **Response:**
@@ -235,12 +247,13 @@ Status:
 ```json
 {
     "id": "5576f3aff5d8953417ce1824",
-    "created": "2015-06-09T14:09:51.989Z",
+    "date_created": "2015-06-09T14:09:51.989Z",
     "course_id": "5576ee13170cb4cc2abb8ed2",
     "title": "Server Technologies",
     "description": "Show your skills and knowledge!"
 }
 ```
+
 
 ### Get all course quizzes
 Gets all quizzes which are associated to the given course ID.
@@ -272,6 +285,7 @@ Status:
     }
 ]
 ```
+
 
 ### Get quiz questions
 **Request:**
@@ -307,21 +321,24 @@ Status:
 ]
 ```
 
+
 ### Publish Quiz
 Publishes a quiz and notifies all subscribed users.
 
 **Request:**
-
 ```httph
 POST /api/quizzes/:id/publish
 Content-Type: x-www-form-urlencoded
 
 form-data:  
-text        required    (Text message to the subscribers)  
+message        required    (Text message to the subscribers)  
+
+
+params:  
+id       ID of quiz to publish
 ```
 
 **Response:**
-
 ```httph 
 Status:
 200 OK                 - Quiz successfully published.
@@ -333,7 +350,6 @@ Status:
 Subscribes a user to receive push notifications
 
 **Request:**
-
 ```httph
 POST /api/account/subscriptions/:token
 
@@ -342,23 +358,21 @@ token   (Push notification token)
 ```
 
 **Response:**
-
 ```httph 
 Status:
 204 No Content      - Account successfully subscribed.
 ```
 
+
 ### Unsubscribe user for receiving notifications
 Unubscribes a user to receive push notifications
 
 **Request:**
-
 ```httph
 DELETE /api/account/subscriptions/
 ```
 
 **Response:**
-
 ```httph 
 Status:
 204 No Content      - Account successfully unsubscribed.
@@ -366,56 +380,83 @@ Status:
 
 
 ### Send answers
+**Request:**
 ```httph
 POST /api/quizzes/:id/solutions
+
+params:  
+id       Quiz id    
 ```
 
 **Example Request Body**
 ```json
 [
   {
-      "question": "55776494d01118ec0cfdfc0f",
+      "question_id": "55776494d01118ec0cfdfc0f",
       "selected":1
   },
   {
-      "question": "66776494d01118ec0cfdfc0f",
+      "question_id": "66776494d01118ec0cfdfc0f",
       "selected":0
   }
 ]
 ```
 
 **Response:**
-
 ```httph 
 Status:
 204 No Content      - Answers successfully sent.
 ```
 
-### Get quiz solution
+
+### Get all quiz solution
+**Request:**
 ```httph
 GET /api/quizzes/:id/solutions
+
+params:  
+id       Quiz ID   
+```
+
+**Response:**
+```httph 
+Status:
+200 OK
+```
+
+### Get account statistics
+**Request:**
+```httph
+GET /api/account/statistics/:stat_type
+
+params:  
+stat_type       Statistics type  
+    - avg
+```
+
+**Response:**
+```httph 
+Status:
+200 OK
 ```
 
 ```json
 [
     {
-        "question": "Question 1",
-        "choices": [
-            "answer1",
-            "answer 3",
-            "answer 2"
-        ],
-        "correct": 3,
-        "selected": 0
+        "quiz": {
+            "id": "55952ac12448901100c3eb3f",
+            "title": "Some Random Quiz"
+        },
+        "user_score": 0.3,
+        "average_score": 0.7
     },
     {
-        "question": "Question 2",
-        "choices": [
-            "answer 3",
-            "answer 4"
-        ],
-        "correct": 2,
-        "selected": null
+        "quiz": {
+            "id": "55958b5a5b3bc1743a9e7804",
+            "title": "Server Technologies"
+        },
+        "user_score": 1,
+        "average_score": 1
     }
 ]
 ```

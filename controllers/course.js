@@ -4,7 +4,7 @@ var HttpError = require('../components/http-error'),
     User = require('../models/user'),
     Course = require('../models/course');
 
-var formatCourse = function (course, author) {
+function formatCourse(course, author) {
     return {
         id: course._id,
         date_created: course.date_created,
@@ -16,7 +16,7 @@ var formatCourse = function (course, author) {
             email: author.email
         }
     };
-};
+}
 
 exports.listCourses = function (req, res, next) {
     Course.find({}, async(function (err, courses) {

@@ -1,4 +1,5 @@
 var router = require('express').Router(),
+    StatisticsController = require('../controllers/statistics'),
     AccountController = require('../controllers/account');
 
 module.exports = function (authController) {
@@ -28,7 +29,11 @@ module.exports = function (authController) {
 
     router.route('/account/solutions/:quiz_id')
         .all(authController.isAuthenticated)
-        .get(AccountController.getQuizSolution);
+        .get(AccountController.getQuizSolutionAsync);
+
+    router.route('/account/statistics/:stat_type')
+        .all(authController.isAuthenticated)
+        .get(StatisticsController.getByType);
 
     return router;
 };
