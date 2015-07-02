@@ -1,21 +1,23 @@
 var User = require('../models/user'),
     HttpError = require('../components/http-error'),
-    Solution = require('../models/solution'),
+    Solution = require('../models/submission'),
     Quiz = require('../models/quiz'),
     _ = require('underscore'),
+    ScoreController = require('../controllers/score'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
 
 var getQuizStatisticsAsync = async(function (quiz) {
-    var solutions = await(Solution.find({quiz_id: quiz.id}).exec());
-    var scores = [];
-    _.each(solutions, function (sol) {
-        scores.push(quiz.evaluateSolution(sol));
-    });
-    var scoresSum = scores.reduce(function (a, b) {
-        return a + b;
-    });
+    var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
+    var scoresSum = _
+        .map(scores, function (score) {
+            return score.score;
+        })
+        .reduce(function (a, b) {
+            return a + b;
+        });
+
     return {
         average: scoresSum / scores.length,
         total_solutions: scores.length
@@ -34,7 +36,7 @@ var getAccountAvgComparisonAsync = async(function (user) {
         var quiz = await(Quiz.findById(solution.quiz_id));
 
         // evaluate statistics
-        var userScore = quiz.evaluateSolution(solution);
+        var userScore = await(ScoreController.evaluateSubmissionAsync(solution));
         var quizStat = await(getQuizStatisticsAsync(quiz));
         results.push({
             quiz: {id: quiz.id, title: quiz.title},

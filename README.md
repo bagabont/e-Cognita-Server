@@ -463,3 +463,37 @@ Status:
     }
 ]
 ```
+
+
+### Get user scores
+*Request*
+```httph
+GET /api/account/scores
+```
+
+*Response*
+```json
+[
+    {
+        "quiz": {
+            "id": "55958b5a5b3bc1743a9e7804",
+            "title": "Server Technologies"
+        },
+        "score": 1
+    }
+]
+```
+
+
+### Get user score for quiz
+*Request*
+```httph
+GET /api/account/scores/:quiz_id
+```
+
+*Response*
+```json
+{
+    "score": 1
+}
+```

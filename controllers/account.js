@@ -1,8 +1,6 @@
 var User = require('../models/user'),
     HttpError = require('../components/http-error'),
-    Solution = require('../models/solution'),
     Quiz = require('../models/quiz'),
-    _ = require('underscore'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
@@ -155,28 +153,3 @@ exports.unsubscribe = function (req, res, next) {
         });
     });
 };
-
-exports.getQuizSolutionAsync = async(function (req, res, next) {
-    var userId = req.user.id;
-    var quizId = req.params.quiz_id;
-    try {
-        var submission = await(Solution.findOne({user_id: userId}));
-        var quiz = await(Quiz.findById(quizId));
-        var result = quiz.questions.map(function (question) {
-            // find solution to question
-            var answer = _.find(submission.solutions, function (sol) {
-                return sol.question_id == question.id
-            });
-            return {
-                question: question.question,
-                choices: question.choices,
-                correct: question.correct,
-                selected: answer ? answer.selected : null
-            };
-        });
-        res.json(result);
-    }
-    catch (e) {
-        return next(e);
-    }
-});

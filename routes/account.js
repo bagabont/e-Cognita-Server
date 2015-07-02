@@ -1,5 +1,7 @@
 var router = require('express').Router(),
     StatisticsController = require('../controllers/statistics'),
+    QuizController = require('../controllers/quiz'),
+    ScoreController = require('../controllers/score'),
     AccountController = require('../controllers/account');
 
 module.exports = function (authController) {
@@ -29,11 +31,18 @@ module.exports = function (authController) {
 
     router.route('/account/solutions/:quiz_id')
         .all(authController.isAuthenticated)
-        .get(AccountController.getQuizSolutionAsync);
+        .get(QuizController.getUserQuizSolutionAsync);
 
     router.route('/account/statistics/:stat_type')
         .all(authController.isAuthenticated)
         .get(StatisticsController.getByTypeAsync);
 
+    router.route('/account/scores')
+        .all(authController.isAuthenticated)
+        .get(ScoreController.getUserScoresAsync);
+
+    router.route('/account/scores/:quiz_id')
+        .all(authController.isAuthenticated)
+        .get(ScoreController.getUserScoreByQuizIdAsync);
     return router;
 };

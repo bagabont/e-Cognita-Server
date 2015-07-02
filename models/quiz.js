@@ -36,21 +36,4 @@ Quiz.pre('save', function (next) {
     next();
 });
 
-Quiz.methods.evaluateSolution = function (submission) {
-    var totalQuestions = this.questions.length;
-    // count correct answers
-    var correctAnswers = this.questions.filter(function (question) {
-        var answer = _.find(submission.solutions, function (solution) {
-            return solution.question_id == question.id
-        });
-        if (!answer) {
-            return false;
-        }
-        return (question.correct == answer.selected);
-    }).length;
-
-    // return score
-    return (correctAnswers / totalQuestions);
-};
-
 module.exports = mongoose.model('Quiz', Quiz);

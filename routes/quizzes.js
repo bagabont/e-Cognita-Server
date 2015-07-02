@@ -22,8 +22,8 @@ module.exports = function (authController) {
 
     router.route('/quizzes/:id/solutions')
         .all(authController.isAuthenticated)
-        .get(QuizController.getSolutions)
-        .post(QuizController.submitSolution);
+        .get(QuizController.getQuizSolutionsAsync)
+        .post(QuizController.submitSolutionAsync);
 
     return router;
 };

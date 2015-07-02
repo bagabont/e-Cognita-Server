@@ -4,7 +4,7 @@ var HttpError = require('../components/http-error'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await'),
     Course = require('../models/course'),
-    Solution = require('../models/solution'),
+    Submission = require('../models/submission'),
     Quiz = require('../models/quiz'),
     _ = require('underscore'),
     gcm = require('node-gcm');
@@ -172,41 +172,65 @@ exports.publishQuiz = function (req, res, next) {
     });
 };
 
-exports.getSolutions = async(function (req, res, next) {
-    var solutions = await(Solution.find({quiz_id: req.params.id}));
-    var result = [];
-    for (var i = 0; i < solutions.length; i++) {
-        var solution = solutions[i];
-        var userId = solution.user_id;
-        try {
-            var user = await(User.findById(userId));
-            var formattedSolutions = solution.solutions.map(function (sol) {
-                return {
-                    question_id: sol.question_id,
-                    selected: sol.selected
-                }
+exports.getUserQuizSolutionAsync = async(function (req, res, next) {
+    var userId = req.user.id;
+    var quizId = req.params.quiz_id;
+    try {
+        // get user solution
+        var submission = await(Submission.findOne({user_id: userId}));
+        // get quiz
+        var quiz = await(Quiz.findById(quizId));
+
+        // populate results
+        var result = quiz.questions.map(function (question) {
+            // find solution to question
+            var answer = _.find(submission.solutions, function (sol) {
+                return sol.question_id == question.id
             });
-            result.push({
-                user: {
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    email: user.email
-                },
-                date_submitted: solution.date_submitted,
-                solutions: formattedSolutions
-            });
-        } catch (e) {
-            console.log(e);
-        }
+            return {
+                question: question.question,
+                choices: question.choices,
+                correct: question.correct,
+                selected: answer ? answer.selected : null
+            };
+        });
+        res.json(result);
     }
+    catch (e) {
+        return next(e);
+    }
+});
+
+exports.getQuizSolutionsAsync = async(function (req, res, next) {
+    var submissions = await(Submission.find({quiz_id: req.params.id}).exec());
+    var result = [];
+    _.each(submissions, function (submission) {
+        var user = await(User.findById(submission.user_id).exec());
+
+        var solutions = submission.solutions.map(function (solution) {
+            return {
+                question_id: solution.question_id,
+                selected: solution.selected
+            }
+        });
+        result.push({
+            user: {
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email
+            },
+            date_submitted: submission.date_submitted,
+            solutions: solutions
+        });
+    });
     return res.status(200).json(result);
 });
 
-exports.submitSolution = async(function (req, res, next) {
+exports.submitSolutionAsync = async(function (req, res, next) {
     var quizId = req.params.id;
     var userId = req.user.id;
 
-    var solution = await(Solution.findOne({quiz_id: quizId, user_id: userId}));
+    var solution = await(Submission.findOne({quiz_id: quizId, user_id: userId}));
     if (solution) {
         return next(new HttpError(403, 'User has already solved this quiz.'))
     }
@@ -215,7 +239,7 @@ exports.submitSolution = async(function (req, res, next) {
         user_id: userId,
         solutions: req.body
     };
-    Solution.create(solutionData, function (err) {
+    Submission.create(solutionData, function (err) {
         if (err) {
             return next(err);
         }
