@@ -1,28 +1,37 @@
 var HttpError = require('../components/http-error'),
+    async = require('asyncawait/async'),
+    await = require('asyncawait/await'),
+    User = require('../models/user'),
     Course = require('../models/course');
 
-function formatCourse(course) {
+var formatCourse = function (course, author) {
     return {
         id: course._id,
-        date_created: course.dateCreated,
-        author_id: course.authorId,
+        date_created: course.date_created,
         title: course.title,
-        description: course.description
+        description: course.description,
+        author: {
+            first_name: author.first_name,
+            last_name: author.last_name,
+            email: author.email
+        }
     };
-}
+};
 
 exports.listCourses = function (req, res, next) {
-    Course.find({}, function (err, courses) {
+    Course.find({}, async(function (err, courses) {
         if (err) {
             return next(err);
         }
         if (!courses) {
             return res.json([]);
         }
-        return res.json(courses.map(function (course) {
-            return formatCourse(course);
-        }));
-    });
+        var result = await(courses.map(async(function (course) {
+            var author = await(User.findById(course.author_id));
+            return formatCourse(course, author);
+        })));
+        return res.json(result);
+    }));
 };
 
 exports.createCourse = function (req, res, next) {
