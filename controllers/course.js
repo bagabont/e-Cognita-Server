@@ -2,6 +2,7 @@ var HttpError = require('../components/http-error'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await'),
     User = require('../models/user'),
+    ObjectId = require('mongoose').Types.ObjectId,
     Course = require('../models/course');
 
 function formatCourse(course, author) {
@@ -54,14 +55,20 @@ exports.createCourse = function (req, res, next) {
     });
 };
 
-exports.getCourseById = function (req, res, next) {
-    Course.findById(req.params.id, function (err, course) {
-        if (err) {
-            return next(err);
+exports.getCourseById = async(function (req, res, next) {
+    try {
+        var courseId = req.params.id;
+        if (!ObjectId.isValid(courseId)) {
+            return next(new HttpError(400, 'Invalid course ID'));
         }
+        var course = await(Course.findById(courseId).exec());
         if (!course) {
             return next(new HttpError(404, 'Course not found'));
         }
-        return res.json(formatCourse(course));
-    });
-};
+        var author = await(User.findById(course.author_id));
+        return res.json(formatCourse(course, author));
+    }
+    catch (err) {
+        return next(err);
+    }
+});
