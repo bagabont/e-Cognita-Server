@@ -177,18 +177,12 @@ exports.publishQuiz = function (req, res, next) {
                 return user.push_token || '';
             });
             gcmSender.send(gcmMessage, tokens, function (err, result) {
-                // if result is undefined or no messages
-                // were successfully sent,return false
-                var success = result ? result.success > 0 : false;
-                if (!success) {
-                    return res.status(204).send();
-                }
                 quiz.date_published = new Date();
                 quiz.save(function (err) {
                     if (err) {
                         return next(err);
                     }
-                    return res.status(204).send();
+                    return res.status(200).json({result: result});
                 })
             });
         });
