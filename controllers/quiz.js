@@ -101,7 +101,7 @@ exports.getQuestions = function (req, res, next) {
         }
         var questions = quiz.questions;
         var result = questions.map(function (question) {
-            return {id: question._id, text: question.text, answers: question.answers}
+            return {id: question._id, text: question.text, choices: question.choices}
         });
         return res.status(200).json(result);
     });
@@ -117,7 +117,7 @@ exports.getSolutions = function (req, res, next) {
             return {
                 author: solution.author,
                 created: solution.created,
-                answers: solution.answers
+                choices: solution.choices
             }
         });
         return res.status(200).json(result);
@@ -129,7 +129,7 @@ exports.submitSolution = function (req, res, next) {
     var solutionData = {
         quiz: quizId,
         author: req.user.id,
-        answers: req.body
+        choices: req.body
     };
     Solution.create(solutionData, function (err) {
         if (err) {

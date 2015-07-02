@@ -1,8 +1,8 @@
 var _ = require('underscore'),
     Solution = require('solutions/quiz-solution');
 
-function getSelection(question, answers) {
-    var selection = _.find(answers, function (solution) {
+function getSelection(question, choices) {
+    var selection = _.find(choices, function (solution) {
         if (solution.question == question.id) {
             return solution;
         }
@@ -10,16 +10,16 @@ function getSelection(question, answers) {
     return selection ? selection.choice : null;
 }
 
-function getSolution(answers) {
+function getSolution(choices) {
     var self = this;
     var solutions = [];
     for (var i = 0; i < self.questions.length; i++) {
         var question = self.questions[i];
         solutions.push({
-            text: question.text,
-            answers: question.answers,
-            correct: question.correctAnswerIndex,
-            selected: getSelection(question, answers)
+            question: question.question,
+            choices: question.choices,
+            correct: question.correct,
+            selected: getSelection(question, choices)
         });
     }
     return solutions;
@@ -35,12 +35,8 @@ exports.getSolutionsByQuizId = function (req, res, next) {
         var user = await(User.findById(userSolution.author));
         results.push({
             user: user.toUserJson(),
-            solution: quiz.getSolution(userSolution.answers)
+            solution: quiz.getSolution(userSolution.choices)
         });
     }
     res.send(results);
-};
-
-module.exports = {
-    getSolutin: getSolution
 };

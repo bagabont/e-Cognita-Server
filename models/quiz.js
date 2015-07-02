@@ -10,7 +10,7 @@ var Quiz = new Schema({
     description: {type: String},
     questions: [{
         question: {type: String, required: true},
-        answers: {type: [String], required: true},
+        choices: {type: [String], required: true},
         correct: {type: Number, required: true}
     }]
 });
