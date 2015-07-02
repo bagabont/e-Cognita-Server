@@ -431,11 +431,14 @@ GET /api/account/statistics/:stat_type
 
 params:  
 stat_type       Statistics type  
-    - avg
+  options:
+    avg
 ```
 
 **Response:**
 ```httph 
+GET /api/account/statistics/avg
+
 Status:
 200 OK
 ```
