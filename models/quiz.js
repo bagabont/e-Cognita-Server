@@ -22,10 +22,11 @@ Quiz.methods.hasQuestions = function () {
     }
     for (var i = 0; i < this.questions.length; i++) {
         var question = this.questions[i];
-        if (!question.choices.length || question.choices.length <= 0) {
+        if (!question.choices || question.choices.length <= 0) {
             return false;
         }
     }
+    return true;
 };
 
 Quiz.pre('save', function (next) {

@@ -19,7 +19,7 @@ var evaluateQuizAvgScoreAsync = async(function (quiz) {
     return (sum / scores.length);
 });
 
-var getProgressStatisticsAsync = async(function (user) {
+var getAccountAvgComparisonAsync = async(function (user) {
     var results = [];
     // get all submissions of user
     var userSolutions = await(Solution.find({user_id: user.id}));
@@ -43,13 +43,13 @@ var getProgressStatisticsAsync = async(function (user) {
 });
 
 
-exports.getByType = async(function (req, res, next) {
+exports.getByTypeAsync = async(function (req, res, next) {
     var type = req.params.stat_type;
-    var user = await(User.findById(req.user.id));
+    var user = await(User.findById(req.user.id).exec());
 
     switch (type) {
         case 'avg':
-            var result = await(getProgressStatisticsAsync(user));
+            var result = await(getAccountAvgComparisonAsync(user));
             return res.json(result);
 
         default:

@@ -143,21 +143,20 @@ exports.publishQuiz = function (req, res, next) {
             if (err) {
                 return next(err);
             }
-            // no users found to be notified
-            if (!users || users.length == 0) {
-                return res.status(204).send();
-            }
+
             var gcmMessage = new gcm.Message();
             gcmMessage.addData('quiz_id', quiz.id);
             gcmMessage.addData('message', message);
-            var tokens = users.map(function (user) {
-                return user.push_token || '';
-            });
 
-            gcmSender.send(gcmMessage, tokens, function (err, result) {
-                if (err) {
-                    return next(err);
-                }
+
+            var tokens = [];
+            if (users && users.length > 0) {
+                tokens = users.map(function (user) {
+                    return user.push_token || '';
+                });
+            }
+
+            gcmSender.send(gcmMessage, tokens, function (gcmError, result) {
                 quiz.date_published = new Date();
                 quiz.save(function (err) {
                     if (err) {
@@ -165,7 +164,7 @@ exports.publishQuiz = function (req, res, next) {
                     }
                     return res.status(200).json({
                         result: result,
-                        error: err
+                        gcm_error: gcmError
                     });
                 })
             });

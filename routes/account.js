@@ -33,7 +33,7 @@ module.exports = function (authController) {
 
     router.route('/account/statistics/:stat_type')
         .all(authController.isAuthenticated)
-        .get(StatisticsController.getByType);
+        .get(StatisticsController.getByTypeAsync);
 
     return router;
 };
