@@ -26,5 +26,9 @@ module.exports = function (authController) {
         .post(AccountController.subscribe)
         .delete(AccountController.unsubscribe);
 
+    router.route('/account/solutions/:quiz_id')
+        .all(authController.isAuthenticated)
+        .get(AccountController.getQuizSolution);
+
     return router;
 };

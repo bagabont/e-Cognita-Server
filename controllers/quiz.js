@@ -13,7 +13,7 @@ var env = process.env.NODE_ENV || 'development';
 var config = config = require('../config/config')[env];
 var gcmSender = new gcm.Sender(config.gcmApiKey);
 
-function formatQuiz(quiz) {
+function prepareQuiz(quiz) {
     return {
         id: quiz.id,
         date_created: quiz.date_created || null,
@@ -53,7 +53,7 @@ exports.listQuizzes = function (req, res, next) {
             return res.json([]);
         }
         return res.json(quizzes.map(function (quiz) {
-            return formatQuiz(quiz)
+            return prepareQuiz(quiz)
         }));
     });
 };
@@ -89,7 +89,7 @@ exports.getQuizById = function (req, res, next) {
             return next(new HttpError(404, 'Quiz not found.'))
         }
         else {
-            res.json(formatQuiz(quiz));
+            res.json(prepareQuiz(quiz));
         }
     });
 };
@@ -184,15 +184,22 @@ exports.getSolutions = function (req, res, next) {
             var userId = solution.user_id;
             try {
                 var user = await(User.findById(userId));
-                result.push({
+                var formattedSolutions = solution.solutions.map(function (sol) {
+                    return {
+                        question_id: sol.question_id,
+                        selected: sol.selected
+                    }
+                });
+                var res = {
                     user: {
                         first_name: user.first_name,
                         last_name: user.last_name,
                         email: user.email
                     },
                     date_submitted: solution.date_submitted,
-                    solutions: solution.solutions
-                });
+                    solutions: formattedSolutions
+                };
+                result.push(res);
             } catch (e) {
                 //TODO
             }
@@ -214,45 +221,4 @@ exports.submitSolution = function (req, res, next) {
         }
         return res.status(204).send();
     });
-};
-
-
-function getSelection(question, choices) {
-    var selection = _.find(choices, function (solution) {
-        if (solution.question == question.id) {
-            return solution;
-        }
-    });
-    return selection ? selection.choice : null;
-}
-
-function getSolution(choices) {
-    var self = this;
-    var solutions = [];
-    for (var i = 0; i < self.questions.length; i++) {
-        var question = self.questions[i];
-        solutions.push({
-            question: question.question,
-            choices: question.choices,
-            correct: question.correct,
-            selected: getSelection(question, choices)
-        });
-    }
-    return solutions;
-}
-
-exports.getSolutionsByQuizId = function (req, res, next) {
-    var quiz = req.quiz;
-    var results = [];
-    var solutions = await(QuizSolution.find({quiz: quiz.id}));
-
-    for (var i = 0; i < solutions.length; i++) {
-        var userSolution = solutions[i];
-        var user = await(User.findById(userSolution.author));
-        results.push({
-            user: user.toUserJson(),
-            solution: quiz.getSolution(userSolution.choices)
-        });
-    }
-    res.send(results);
 };

@@ -1,5 +1,10 @@
 var User = require('../models/user'),
     HttpError = require('../components/http-error'),
+    Solution = require('../models/solution'),
+    Quiz = require('../models/quiz'),
+    _ = require('underscore'),
+    async = require('asyncawait/async'),
+    await = require('asyncawait/await'),
     Course = require('../models/course');
 
 exports.getAccount = function (req, res, next) {
@@ -150,3 +155,31 @@ exports.unsubscribe = function (req, res, next) {
         });
     });
 };
+
+exports.getQuizSolution = async(function (req, res, next) {
+    var userId = req.user.id;
+    var quizId = req.params.quiz_id;
+    try {
+        var quiz = await(Quiz.findById(quizId));
+        var userSolution = await(Solution.findOne({user_id: userId}));
+
+        var result = quiz.questions.map(function (question) {
+            // find solution to question
+            var questionSolution = _.find(userSolution.solutions, function (sol) {
+                return sol.question_id == question.id
+            });
+
+            return {
+                question: question.question,
+                choices: question.choices,
+                correct: question.correct,
+                selected: questionSolution ? questionSolution.selected : null
+            };
+
+        });
+        res.json(result);
+    }
+    catch (e) {
+        return next(e);
+    }
+});
