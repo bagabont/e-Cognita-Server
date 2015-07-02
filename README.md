@@ -119,7 +119,7 @@ Enroll for a course
 
 **Request:**
 ```httph
-POST /api/account/enrollments/:id
+POST /api/account/enrolled/:id
 
 params:  
 id       Course ID for which the user is enrolling    
@@ -137,7 +137,7 @@ Get list of courses which the user is enrolled for.
 
 **Request:**
 ```httph
-GET /api/account/enrollments
+GET /api/account/enrolled
 Accept: application/json  
 ```
 
@@ -167,7 +167,7 @@ Leave a course
 
 **Request:**
 ```httph
-DELETE /api/account/enrollments/:id
+DELETE /api/account/enrolled/:id
 
 params:  
 id       required    (ID of the course to be left)
@@ -196,14 +196,14 @@ Content-Type: application/json
     "course_id": "5576ee13170cb4cc2abb8ed2", 
     "questions": [
         {
-            "text": "First question?",
-            "answers": ["Answ1",  "Answ2"],
-            "correctAnswerIndex": "1"
+            "question": "First question?",
+            "choices": ["Answ1",  "Answ2"],
+            "correct": "1"
         },
          {
-            "text": "Another quesion?",
-            "answers": ["Answ3", "Answ4"],
-            "correctAnswerIndex": "0"
+            "question": "Another quesion?",
+            "choices": ["Answ3", "Answ4"],
+            "correct": "0"
         } 
     ]
 }
@@ -290,16 +290,16 @@ Status:
 [
     {
         "id": "5576f3aff5d8953417ce1826",
-        "text": "First question?",
-        "answers": [
+        "question": "First question?",
+        "choices": [
             "Answ1",
             "Answ2"
         ]
     },
     {
         "id": "5576f3aff5d8953417ce1825",
-        "text": "Another quesion?",
-        "answers": [
+        "question": "Another quesion?",
+        "choices": [
             "Answ3",
             "Answ4"
         ]
@@ -367,7 +367,7 @@ Status:
 
 ### Send answers
 ```httph
-POST /api/quizzes/:id/answers
+POST /api/quizzes/:id/solutions
 ```
 
 **Example Request Body**
@@ -375,11 +375,11 @@ POST /api/quizzes/:id/answers
 [
   {
       "question": "55776494d01118ec0cfdfc0f",
-      "choice":1
+      "selected":1
   },
   {
       "question": "66776494d01118ec0cfdfc0f",
-      "choice":0
+      "selected":0
   }
 ]
 ```
