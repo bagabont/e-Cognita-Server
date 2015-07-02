@@ -55,13 +55,12 @@ exports.createQuiz = function (req, res, next) {
     if (!result.success) {
         return next(new HttpError(400, result.errors));
     }
-    var courseId = quizData.course_id;
     Course.findById(quizData.course_id, function (err, course) {
         if (err) {
             return next(err);
         }
         if (!course) {
-            return next(new HttpError(404, 'Course with id: ' + courseId + ' not found.'));
+            return next(new HttpError(404, 'The course specified for this quiz cannot be found.'));
         }
         Quiz.create(quizData, function (err, quiz) {
             return res.json(formatQuiz(quiz));
