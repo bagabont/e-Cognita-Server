@@ -15,7 +15,7 @@ var User = new Schema({
 
 User.pre('save', function (next) {
     if (!this.date_created) {
-        this.date_created = Date.now;
+        this.date_created = Date.now();
     }
     next();
 });

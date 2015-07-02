@@ -7,6 +7,7 @@ var Quiz = new Schema({
     date_created: {type: Date},
     date_published: {type: Date},
     date_due: {type: Date},
+    date_closed: {type: Date},
     title: {type: String, required: true},
     description: {type: String},
     questions: [{
@@ -15,6 +16,10 @@ var Quiz = new Schema({
         correct: {type: Number, required: true}
     }]
 });
+
+Quiz.methods.isClosed = function () {
+    return this.date_closed !== undefined;
+};
 
 Quiz.methods.hasQuestions = function () {
     if (!this.questions || this.questions.length <= 0) {

@@ -16,6 +16,10 @@ module.exports = function (authController) {
         .all(authController.isAuthenticated)
         .post(QuizController.publishQuiz);
 
+    router.route('/quizzes/:id/close')
+        .all(authController.isAuthenticated)
+        .post(QuizController.closeQuizAsync);
+
     router.route('/quizzes/:id/questions')
         .all(authController.isAuthenticated)
         .get(QuizController.getQuestions);

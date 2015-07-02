@@ -14,7 +14,7 @@ var Submission = new Schema({
 
 Submission.pre('save', function (next) {
     if (!this.date_submitted) {
-        this.date_submitted = Date.now;
+        this.date_submitted = Date.now();
     }
     next();
 });
