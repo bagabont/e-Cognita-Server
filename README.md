@@ -390,3 +390,32 @@ POST /api/quizzes/:id/solutions
 Status:
 204 No Content      - Answers successfully sent.
 ```
+
+### Get quiz solution
+```httph
+GET /api/quizzes/:id/solutions
+```
+
+```json
+[
+    {
+        "question": "Question 1",
+        "choices": [
+            "answer1",
+            "answer 3",
+            "answer 2"
+        ],
+        "correct": 3,
+        "selected": 0
+    },
+    {
+        "question": "Question 2",
+        "choices": [
+            "answer 3",
+            "answer 4"
+        ],
+        "correct": 2,
+        "selected": null
+    }
+]
+```
