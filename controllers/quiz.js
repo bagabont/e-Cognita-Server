@@ -56,7 +56,7 @@ exports.createQuiz = function (req, res, next) {
         return next(new HttpError(400, result.errors));
     }
     var courseId = quizData.course_id;
-    Course.findById(req.query.course_id, function (err, course) {
+    Course.findById(quizData.course_id, function (err, course) {
         if (err) {
             return next(err);
         }
