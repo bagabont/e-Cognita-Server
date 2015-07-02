@@ -7,22 +7,25 @@ var User = require('../models/user'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
 
-var evaluateQuizAvgScoreAsync = async(function (quiz) {
-    var solutions = await(Solution.find({quiz_id: quiz.id}));
+var getQuizStatisticsAsync = async(function (quiz) {
+    var solutions = await(Solution.find({quiz_id: quiz.id}).exec());
     var scores = [];
     _.each(solutions, function (sol) {
         scores.push(quiz.evaluateSolution(sol));
     });
-    var sum = scores.reduce(function (a, b) {
+    var scoresSum = scores.reduce(function (a, b) {
         return a + b;
     });
-    return (sum / scores.length);
+    return {
+        average: scoresSum / scores.length,
+        total_solutions: scores.length
+    };
 });
 
 var getAccountAvgComparisonAsync = async(function (user) {
     var results = [];
     // get all submissions of user
-    var userSolutions = await(Solution.find({user_id: user.id}));
+    var userSolutions = await(Solution.find({user_id: user.id}).exec());
 
     for (var i = 0; i < userSolutions.length; i++) {
         var solution = userSolutions[i];
@@ -32,11 +35,12 @@ var getAccountAvgComparisonAsync = async(function (user) {
 
         // evaluate statistics
         var userScore = quiz.evaluateSolution(solution);
-        var avgScore = await(evaluateQuizAvgScoreAsync(quiz));
+        var quizStat = await(getQuizStatisticsAsync(quiz));
         results.push({
             quiz: {id: quiz.id, title: quiz.title},
             user_score: userScore,
-            average_score: avgScore
+            average_score: quizStat.average,
+            total_solutions: quizStat.total_solutions
         });
     }
     return results;
