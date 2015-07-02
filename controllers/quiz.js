@@ -174,35 +174,39 @@ exports.publishQuiz = function (req, res, next) {
 };
 
 exports.getSolutions = function (req, res, next) {
-    Solution.find({quiz_id: req.params.id}, function (err, solutions) {
+    Solution.find({quiz_id: req.params.id}, async(function (err, solutions) {
         if (err) {
             return next(err);
         }
+        var result = [];
         for (var i = 0; i < solutions.length; i++) {
-            var userId = solutions[i].user_id;
-            User.findById(userId, function (err, user) {
-                if (err) {
-                    return;
-                }
-                var result = solutions.map(function (solution) {
-                    return {
-                        user_id: solution.user_id,
-                        date_submitted: solution.date_submitted,
-                        solutions: solution.solutions
-                    }
+            var solution = solutions[i];
+            var userId = solution.user_id;
+            try {
+                var user = await(User.findById(userId));
+                result.push({
+                    user: {
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        email: user.email
+                    },
+                    date_submitted: solution.date_submitted,
+                    solutions: solution.solutions
                 });
-                return res.status(200).json(result);
-            });
+            } catch (e) {
+                //TODO
+            }
         }
-    });
+        return res.status(200).json(result);
+    }));
 };
 
 exports.submitSolution = function (req, res, next) {
     var quizId = req.params.id;
     var solutionData = {
-        quiz: quizId,
-        author: req.user.id,
-        solution: req.body
+        quiz_id: quizId,
+        user_id: req.user.id,
+        solutions: req.body
     };
     Solution.create(solutionData, function (err) {
         if (err) {
