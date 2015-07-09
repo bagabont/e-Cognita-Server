@@ -521,3 +521,64 @@ GET /api/account/scores/:quiz_id
     "score": 1
 }
 ```
+
+
+### Get grade distribution
+*Request*
+```httph
+GET /api/statistics/:quiz_id/grade_distribution
+
+params:
+quiz_id - ID of the quiz
+```
+
+*Response*
+```json
+{
+   "quiz_id":"559e56a52da51d1100febd1c",
+   "quiz_title":"Quiz 1",
+   "total_participants":1,
+   "grade_distribution":[
+      {
+         "score":0,
+         "count":0
+      },
+      {
+         "score":0.1,
+         "count":0
+      },
+      {
+         "score":0.2,
+         "count":0
+      },
+      {
+         "score":0.3,
+         "count":1
+      },
+      {
+         "score":0.4,
+         "count":0
+      },
+      {
+         "score":0.5,
+         "count":0
+      },
+      {
+         "score":0.6,
+         "count":0
+      },
+      {
+         "score":0.7,
+         "count":0
+      },
+      {
+         "score":0.8,
+         "count":0
+      },
+      {
+         "score":0.9,
+         "count":0
+      }
+   ]
+}
+```

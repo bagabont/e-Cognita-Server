@@ -88,13 +88,12 @@ exports.getGradeDistributionAsync = async(function(req, res, next) {
         });
         dist.count++;
     });
-
+    
     var data = {
         quiz_id: quiz.id,
         quiz_title: quiz.title,
         total_participants: scores.length,
         grade_distribution: gradeDist
     }
-
     return res.json(data);
 });
