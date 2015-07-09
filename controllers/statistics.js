@@ -8,34 +8,34 @@ var User = require('../models/user'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
 
-var getAverageAsync = async(function (quiz) {
+var getAverageAsync = async(function(quiz) {
     var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
     var scoresSum = _
-        .map(scores, function (score) {
-        return score.score;
-    })
-        .reduce(function (a, b) {
-        return a + b;
-    });
+        .map(scores, function(score) {
+            return score.score;
+        })
+        .reduce(function(a, b) {
+            return a + b;
+        });
     return {
         average: scoresSum / scores.length,
         total_solutions: scores.length
     };
 });
 
-var getAccountAvgComparisonAsync = async(function (user) {
+var getAccountAvgComparisonAsync = async(function(user) {
     var results = [];
     // get all submissions of user
     var userSolutions = await(Solution.find({
         user_id: user.id
     }).exec());
-    
+
     for (var i = 0; i < userSolutions.length; i++) {
         var solution = userSolutions[i];
-        
+
         // find quiz
         var quiz = await(Quiz.findById(solution.quiz_id));
-        
+
         // evaluate statistics
         var userScore = await(ScoreController.evaluateSubmissionAsync(solution));
         var quizStat = await(getAverageAsync(quiz));
@@ -52,10 +52,10 @@ var getAccountAvgComparisonAsync = async(function (user) {
     return results;
 });
 
-exports.getByTypeAsync = async(function (req, res, next) {
+exports.getByTypeAsync = async(function(req, res, next) {
     var type = req.params.stat_type;
     var user = await(User.findById(req.user.id).exec());
-    
+
     switch (type) {
         case 'avg':
             var result = await(getAccountAvgComparisonAsync(user));
@@ -66,25 +66,28 @@ exports.getByTypeAsync = async(function (req, res, next) {
     }
 });
 
-exports.getGradeDistributionAsync = async(function (req, res, next) {
+exports.getGradeDistributionAsync = async(function(req, res, next) {
     var quizId = req.params.quiz_id;
     var quiz = await(Quiz.findById(quizId).exec());
     if (!quiz) {
         return next(new HttpError(404, 'Quiz not found.'));
     }
     var gradeDist = [];
-    for (var i = 1; i <= 9; i++) {
+    for (var i = 0; i < 10; i++) {
         gradeDist.push({
-            score: i / 10, 
+            score: i / 10,
             count: 0
         });
     }
-    
+
     var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
-    _.forEach(scores, function (score) {
-        var grade = Math.ceil(score.score);
-       
-//        gradeDist[index].count++;
+    _.forEach(scores, function(score) {
+        var grade = Math.floor(score.score * 10) / 10;
+
+        var dist = _.find(gradeDist, function(gd) {
+            return gd.score == grade;
+        });
+        dist.count++;
     });
     return res.json(gradeDist);
 });
