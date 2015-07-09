@@ -87,7 +87,6 @@ exports.drop = async(function(req, res, next) {
         return next(new HttpError(404, 'User not found.'));
     }
     var courseId = req.params.course_id;
-    console.log(courseId)
     var index = user.enrollments.indexOf(courseId);
     if (index > -1) {
         user.enrollments.splice(index, 1);
