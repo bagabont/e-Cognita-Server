@@ -13,7 +13,7 @@ var env = process.env.NODE_ENV || 'development';
 var config = config = require('../config/config')[env];
 var gcmSender = new gcm.Sender(config.gcmApiKey);
 
-function formatQuiz(quiz) {
+function formatQuiz(quiz, dateSolved) {
     return {
         id: quiz.id,
         title: quiz.title,
@@ -22,7 +22,8 @@ function formatQuiz(quiz) {
         date_created: quiz.date_created || null,
         date_due: quiz.date_due || null,
         date_closed: quiz.date_closed || null,
-        date_published: quiz.date_published || null
+        date_published: quiz.date_published || null,
+        date_solved: dateSolved || null
     }
 }
 
@@ -43,21 +44,17 @@ function validateQuiz(quiz) {
     return { success: true, errors: null };
 }
 
-exports.listQuizzes = function (req, res, next) {
+exports.listQuizzes = async(function (req, res, next) {
     var courseId = req.query.course_id;
     var options = courseId ? { course_id: courseId } : {};
-    Quiz.find(options, function (err, quizzes) {
-        if (err) {
-            return next(err);
-        }
-        if (!quizzes) {
-            return res.json([]);
-        }
-        return res.json(quizzes.map(function (quiz) {
-            return formatQuiz(quiz)
-        }));
-    });
-};
+    var quizzes = await(Quiz.find(options).exec());
+    if (!quizzes) {
+        return res.json([]);
+    }
+    return res.json(quizzes.map(function (quiz) {
+        return formatQuiz(quiz);
+    }));
+});
 
 exports.createQuiz = function (req, res, next) {
     var quizData = req.body;
@@ -81,19 +78,14 @@ exports.createQuiz = function (req, res, next) {
     })
 };
 
-exports.getQuizById = function (req, res, next) {
-    Quiz.findById(req.params.id, function (err, quiz) {
-        if (err) {
-            return next(err);
-        }
-        if (!quiz) {
-            return next(new HttpError(404, 'Quiz not found.'))
-        }
-        else {
-            res.json(formatQuiz(quiz));
-        }
-    });
-};
+exports.getQuizById = async(function (req, res, next) {
+    var quiz = await(Quiz.findById(req.params.id));
+    if (!quiz) {
+        return next(new HttpError(404, 'Quiz not found.'));
+    } else {
+        return res.json(formatQuiz(quiz));
+    }
+});
 
 exports.getQuestions = function (req, res, next) {
     Quiz.findById(req.params.id, function (err, quiz) {

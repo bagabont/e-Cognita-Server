@@ -8,7 +8,7 @@ var User = require('../models/user'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
 
-var getQuizStatisticsAsync = async(function (quiz) {
+var getAverageAsync = async(function (quiz) {
     var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
     var scoresSum = _
         .map(scores, function (score) {
@@ -17,7 +17,6 @@ var getQuizStatisticsAsync = async(function (quiz) {
         .reduce(function (a, b) {
         return a + b;
     });
-    
     return {
         average: scoresSum / scores.length,
         total_solutions: scores.length
@@ -27,7 +26,9 @@ var getQuizStatisticsAsync = async(function (quiz) {
 var getAccountAvgComparisonAsync = async(function (user) {
     var results = [];
     // get all submissions of user
-    var userSolutions = await(Solution.find({ user_id: user.id }).exec());
+    var userSolutions = await(Solution.find({
+        user_id: user.id
+    }).exec());
     
     for (var i = 0; i < userSolutions.length; i++) {
         var solution = userSolutions[i];
@@ -37,9 +38,12 @@ var getAccountAvgComparisonAsync = async(function (user) {
         
         // evaluate statistics
         var userScore = await(ScoreController.evaluateSubmissionAsync(solution));
-        var quizStat = await(getQuizStatisticsAsync(quiz));
+        var quizStat = await(getAverageAsync(quiz));
         results.push({
-            quiz: { id: quiz.id, title: quiz.title },
+            quiz: {
+                id: quiz.id,
+                title: quiz.title
+            },
             user_score: userScore,
             average_score: quizStat.average,
             total_solutions: quizStat.total_solutions
@@ -47,7 +51,6 @@ var getAccountAvgComparisonAsync = async(function (user) {
     }
     return results;
 });
-
 
 exports.getByTypeAsync = async(function (req, res, next) {
     var type = req.params.stat_type;
@@ -59,6 +62,28 @@ exports.getByTypeAsync = async(function (req, res, next) {
             return res.json(result);
 
         default:
-            return next(new HttpError(404, 'Unknown statistics type.'))
+            return next(new HttpError(404, 'Unknown statistics type.'));
     }
+});
+
+exports.getGradeDistributionAsync = async(function (req, res, next) {
+    var quizId = req.params.quiz_id;
+    var quiz = await(Quiz.findById(quizId).exec());
+    if (!quiz) {
+        return next(new HttpError(404, 'Quiz not found.'));
+    }
+    var gradeDist = [];
+    for (var i = 1; i <= 9; i++) {
+        gradeDist.push({
+            score: i / 10, 
+            count: 0
+        });
+    }
+    
+    var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
+    _.forEach(scores, function (score) {
+        var grade = Math.ceil(score.score);
+        gradeDist[grade * 10].count++;
+    });
+    return res.json(gradeDist);
 });

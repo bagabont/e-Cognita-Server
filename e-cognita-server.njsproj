@@ -24,6 +24,7 @@ MONGO_USER=instructor</Environment>
   <ItemGroup>
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Compile Include="routes\statistics.js" />
     <Compile Include="server.js" />
     <Compile Include="components\http-error.js" />
     <Compile Include="config\config.js" />

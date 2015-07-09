@@ -17,12 +17,14 @@ module.exports = function (config, app) {
     var account = require('../routes/account')(authController);
     var courses = require('../routes/courses')(authController);
     var quizzes = require('../routes/quizzes')(authController);
+    var statistics = require('../routes/statistics')(authController);
     
     // set API routers
     app.use('/api/', users);
     app.use('/api/', account);
     app.use('/api/', courses);
     app.use('/api/', quizzes);
+    app.use('/api/', statistics);
     
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
