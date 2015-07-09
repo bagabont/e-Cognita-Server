@@ -38,14 +38,14 @@ function validateQuiz(quiz) {
         errors.push('Invalid or missing title.');
     }
     if (errors.length > 0) {
-        return {success: false, errors: errors.join()};
+        return { success: false, errors: errors.join() };
     }
-    return {success: true, errors: null};
+    return { success: true, errors: null };
 }
 
 exports.listQuizzes = function (req, res, next) {
     var courseId = req.query.course_id;
-    var options = courseId ? {course_id: courseId} : {};
+    var options = courseId ? { course_id: courseId } : {};
     Quiz.find(options, function (err, quizzes) {
         if (err) {
             return next(err);
@@ -129,7 +129,7 @@ exports.publishQuiz = function (req, res, next) {
         }
         var message = req.body.message;
         var overwrite = req.query.overwrite;
-
+        
         // check if quiz is already published
         var isPublished = quiz.date_published !== undefined;
         if (isPublished && overwrite !== 'true') {
@@ -139,24 +139,24 @@ exports.publishQuiz = function (req, res, next) {
             return next(new HttpError(400, 'Quiz without any questions cannot be published.'))
         }
         // find enrolled users
-        User.find({enrollments: quiz.course_id}, function (err, users) {
+        User.find({ enrollments: quiz.course_id }, function (err, users) {
             if (err) {
                 return next(err);
             }
-
+            
             var gcmMessage = new gcm.Message();
             gcmMessage.addData('quiz_id', quiz.id);
             gcmMessage.addData('action', 'publish');
             gcmMessage.addData('message', message);
-
-
+            
+            
             var tokens = [];
             if (users && users.length > 0) {
                 tokens = users.map(function (user) {
                     return user.push_token || '';
                 });
             }
-
+            
             gcmSender.send(gcmMessage, tokens, function (gcmError, result) {
                 quiz.date_published = Date.now();
                 quiz.save(function (err) {
@@ -180,27 +180,27 @@ exports.closeQuizAsync = async(function (req, res, next) {
     }
     var message = req.body.message;
     var overwrite = req.query.overwrite;
-
+    
     // check if quiz is already published
     if (quiz.isClosed() && overwrite !== 'true') {
         return next(new HttpError(403, 'Quiz is already closed.'));
     }
-
+    
     // generate message
     var gcmMessage = new gcm.Message();
     gcmMessage.addData('quiz_id', quiz.id);
     gcmMessage.addData('action', 'close');
     gcmMessage.addData('message', message);
-
+    
     // find enrolled users
-    var users = await(User.find({enrollments: quiz.course_id}));
+    var users = await(User.find({ enrollments: quiz.course_id }));
     var tokens = [];
     if (users && users.length > 0) {
         tokens = users.map(function (user) {
             return user.push_token || '';
         });
     }
-
+    
     gcmSender.send(gcmMessage, tokens, function (gcmError, result) {
         quiz.date_closed = Date.now();
         quiz.save(function (err) {
@@ -220,10 +220,10 @@ exports.getUserQuizSolutionAsync = async(function (req, res, next) {
     var quizId = req.params.quiz_id;
     try {
         // get user solution
-        var submission = await(Submission.findOne({user_id: userId}));
+        var submission = await(Submission.findOne({ user_id: userId }));
         // get quiz
         var quiz = await(Quiz.findById(quizId));
-
+        
         // populate results
         var result = quiz.questions.map(function (question) {
             // find solution to question
@@ -245,11 +245,11 @@ exports.getUserQuizSolutionAsync = async(function (req, res, next) {
 });
 
 exports.getQuizSolutionsAsync = async(function (req, res, next) {
-    var submissions = await(Submission.find({quiz_id: req.params.id}).exec());
+    var submissions = await(Submission.find({ quiz_id: req.params.id }).exec());
     var result = [];
     _.each(submissions, function (submission) {
         var user = await(User.findById(submission.user_id).exec());
-
+        
         var solutions = submission.solutions.map(function (solution) {
             return {
                 question_id: solution.question_id,
@@ -272,14 +272,14 @@ exports.getQuizSolutionsAsync = async(function (req, res, next) {
 exports.submitSolutionAsync = async(function (req, res, next) {
     var quizId = req.params.id;
     var userId = req.user.id;
-
+    
     // check if quiz is closed
     var quiz = await(Quiz.findById(quizId));
     if (quiz.isClosed()) {
         return next(new HttpError(403, 'Quiz ' + quiz.title + ' is closed.'));
     }
-
-    var solution = await(Submission.findOne({quiz_id: quizId, user_id: userId}));
+    
+    var solution = await(Submission.findOne({ quiz_id: quizId, user_id: userId }));
     if (solution) {
         return next(new HttpError(403, 'User has already solved this quiz.'))
     }

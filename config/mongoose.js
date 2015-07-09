@@ -1,10 +1,10 @@
 var mongoose = require('mongoose');
 
 module.exports = function (config) {
-
+    
     // connect to database
     mongoose.connect(config.db);
-
+    
     var db = mongoose.connection;
     db.once('open', function (err) {
         if (err) {
@@ -13,7 +13,7 @@ module.exports = function (config) {
         }
         console.log('Database up and running...');
     });
-
+    
     // error handler
     db.on('error', function (err) {
         console.log('Database error: ' + err);

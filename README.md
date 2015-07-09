@@ -104,6 +104,7 @@ Status:
 ```
 
 ```json
+
 [
     {
         "id": "557696342886b96832a4842f",
@@ -201,18 +202,18 @@ Content-Type: application/json
 {
     "title": "Server Technologies",
     "description": "Show your skills and knowledge!",
-    "course_id": "5576ee13170cb4cc2abb8ed2", 
+    "course_id": "5576ee13170cb4cc2abb8ed2",
     "questions": [
         {
             "question": "First question?",
-            "choices": ["Answ1",  "Answ2"],
+            "choices": [ "Answ1", "Answ2" ],
             "correct": "1"
         },
-         {
+        {
             "question": "Another quesion?",
-            "choices": ["Answ3", "Answ4"],
+            "choices": [ "Answ3", "Answ4" ],
             "correct": "0"
-        } 
+        }
     ]
 }
 ```
@@ -413,14 +414,14 @@ id       Quiz id
 **Example Request Body**
 ```json
 [
-  {
-      "question_id": "55776494d01118ec0cfdfc0f",
-      "selected":1
-  },
-  {
-      "question_id": "66776494d01118ec0cfdfc0f",
-      "selected":0
-  }
+    {
+        "question_id": "55776494d01118ec0cfdfc0f",
+        "selected": 1
+    },
+    {
+        "question_id": "66776494d01118ec0cfdfc0f",
+        "selected": 0
+    }
 ]
 ```
 

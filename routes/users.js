@@ -5,6 +5,6 @@ module.exports = function () {
     router.route('/users')
         .get(UserController.listUsers)
         .post(UserController.register);
-
+    
     return router;
 };

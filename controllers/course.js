@@ -37,7 +37,7 @@ exports.listCourses = function (req, res, next) {
 
 exports.createCourse = function (req, res, next) {
     var courseData = req.body;
-    Course.findOne({title: courseData.title}, function (err, course) {
+    Course.findOne({ title: courseData.title }, function (err, course) {
         if (err) {
             return next(err);
         }

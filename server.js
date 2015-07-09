@@ -10,4 +10,8 @@ require('./config/mongoose')(config);
 require('./config/express')(config, app);
 
 // Create server
-module.exports = http.createServer(app);
+var server = http.createServer(app);
+
+server.listen(process.env.PORT || 3030, function () {
+    console.log('e-Cognita ' + process.env.NODE_ENV + ' server listening on port ' + server.address().port + '...');
+});

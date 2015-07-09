@@ -6,10 +6,10 @@ module.exports = function (authController) {
         .all(authController.isAuthenticated)
         .get(CourseController.listCourses)
         .post(CourseController.createCourse);
-
+    
     router.route('/courses/:id')
         .all(authController.isAuthenticated)
         .get(CourseController.getCourseById);
-
+    
     return router;
 };

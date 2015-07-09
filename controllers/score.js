@@ -25,7 +25,7 @@ var evaluateSubmissionAsync = async(function (submission) {
 });
 
 var evaluateAllSubmissionsAsync = async(function (quiz) {
-    var submissions = await(Submission.find({quiz_id: quiz.id}).exec());
+    var submissions = await(Submission.find({ quiz_id: quiz.id }).exec());
     var scores = [];
     _.each(submissions, function (submission) {
         // find user for this submission
@@ -43,25 +43,24 @@ var evaluateAllSubmissionsAsync = async(function (quiz) {
 });
 
 var getUserScoresAsync = async(function (req, res, next) {
-        var findOptions = {user_id: req.user.id};
-        var submissions = await(Submission.find(findOptions).exec());
-        if (!submissions) {
-            return next(new HttpError(404, 'Submissions not found.'));
-        }
-        var scores = [];
-        _.each(submissions, function (submission) {
-            var quiz = await(Quiz.findById(submission.quiz_id));
-            scores.push({
-                quiz: {
-                    id: quiz.id,
-                    title: quiz.title
-                },
-                score: await(evaluateSubmissionAsync(submission))
-            });
+    var findOptions = { user_id: req.user.id };
+    var submissions = await(Submission.find(findOptions).exec());
+    if (!submissions) {
+        return next(new HttpError(404, 'Submissions not found.'));
+    }
+    var scores = [];
+    _.each(submissions, function (submission) {
+        var quiz = await(Quiz.findById(submission.quiz_id));
+        scores.push({
+            quiz: {
+                id: quiz.id,
+                title: quiz.title
+            },
+            score: await(evaluateSubmissionAsync(submission))
         });
-        return res.json(scores);
-    })
-    ;
+    });
+    return res.json(scores);
+});
 
 var getUserScoreByQuizIdAsync = async(function (req, res, next) {
     var findOptions = {
@@ -72,7 +71,7 @@ var getUserScoreByQuizIdAsync = async(function (req, res, next) {
     if (!submission) {
         return next(new HttpError(404, 'Submission not found.'));
     }
-    return res.json({score: await(evaluateSubmissionAsync(submission))});
+    return res.json({ score: await(evaluateSubmissionAsync(submission)) });
 });
 
 module.exports = {
