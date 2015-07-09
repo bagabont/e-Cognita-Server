@@ -83,11 +83,18 @@ exports.getGradeDistributionAsync = async(function(req, res, next) {
     var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
     _.forEach(scores, function(score) {
         var grade = Math.floor(score.score * 10) / 10;
-
         var dist = _.find(gradeDist, function(gd) {
             return gd.score == grade;
         });
         dist.count++;
     });
-    return res.json(gradeDist);
+
+    var data = {
+        quiz_id: quiz.id,
+        quiz_title: quiz.title,
+        total_participants: scores.length,
+        grade_distribution: gradeDist
+    }
+
+    return res.json(data);
 });
