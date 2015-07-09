@@ -88,7 +88,7 @@ exports.getGradeDistributionAsync = async(function(req, res, next) {
         });
         dist.count++;
     });
-    
+
     var data = {
         quiz_id: quiz.id,
         quiz_title: quiz.title,
@@ -97,3 +97,35 @@ exports.getGradeDistributionAsync = async(function(req, res, next) {
     }
     return res.json(data);
 });
+
+exports.getAnswersDistributionAsync = async(function(req, res, next) {
+    var quizId = req.params.quiz_id;
+    var quiz = await(Quiz.findById(quizId).exec());
+    if (!quiz) {
+        return next(new HttpError(404, 'Quiz not found.'));
+    }
+
+    var submissions = await(Submission.find().exec());
+
+    var data = {
+        quiz_id: quiz.id,
+        quiz_title: quiz.title,
+        questions: []
+    }
+    return res.json(data);
+});
+
+/*
+
+{
+    "quiz_id": "123",
+    "quiz_title": "Title",
+    "questions_stat": [
+        "question": "Is this a question?",
+        "question_index": 0,
+        "correct_answers_count": 10,
+        "wrong_answers_count": 7
+    ]
+}
+
+*/

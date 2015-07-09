@@ -19,43 +19,35 @@ function formatCourse(course, author) {
     };
 }
 
-exports.listCourses = function (req, res, next) {
-    Course.find({}, async(function (err, courses) {
-        if (err) {
-            return next(err);
-        }
-        if (!courses) {
-            return res.json([]);
-        }
-        var result = await(courses.map(async(function (course) {
-            var author = await(User.findById(course.author_id));
-            return formatCourse(course, author);
-        })));
-        return res.json(result);
-    }));
-};
+exports.listCourses = async(function(req, res, next) {
+    var courses = await(Course.find().exec());
+    if (!courses) {
+        return res.json([]);
+    }
+    var result = await(courses.map(async(function(course) {
+        var author = await(User.findById(course.author_id));
+        return formatCourse(course, author);
+    })));
+    return res.json(result);
+});
 
-exports.createCourse = function (req, res, next) {
+exports.createCourse = async(function(req, res, next) {
     var courseData = req.body;
-    Course.findOne({ title: courseData.title }, function (err, course) {
-        if (err) {
-            return next(err);
-        }
-        if (course) {
-            return next(new HttpError(409, 'Course already exists.'));
-        }
-        // set course author
-        courseData.author_id = req.user.id;
-        Course.create(courseData, function (err, course) {
-            if (err) {
-                return next(err);
-            }
-            return res.json(formatCourse(course));
-        });
-    });
-};
+    var course = await(Course.findOne({
+        title: courseData.title
+    }));
 
-exports.getCourseById = async(function (req, res, next) {
+    if (course) {
+        return next(new HttpError(409, 'Course already exists.'));
+    }
+    // set course author
+    courseData.author_id = req.user.id;
+    await(Course.create(courseData).exec());
+    
+    return res.json(formatCourse(course));
+});
+
+exports.getCourseById = async(function(req, res, next) {
     try {
         var courseId = req.params.id;
         if (!ObjectId.isValid(courseId)) {
@@ -67,8 +59,7 @@ exports.getCourseById = async(function (req, res, next) {
         }
         var author = await(User.findById(course.author_id));
         return res.json(formatCourse(course, author));
-    }
-    catch (err) {
+    } catch (err) {
         return next(err);
     }
 });

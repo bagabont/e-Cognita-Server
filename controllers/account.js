@@ -5,7 +5,7 @@ var User = require('../models/user'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
 
-exports.getAccount = async(function (req, res, next) {
+exports.getAccount = async(function(req, res, next) {
     var user = await(User.findById(req.user.id).exec());
     return res.json({
         id: user.id,
@@ -15,42 +15,56 @@ exports.getAccount = async(function (req, res, next) {
     });
 });
 
-exports.deleteAccount = async(function (req, res, next) {
+exports.deleteAccount = async(function(req, res, next) {
     await(User.findByIdAndRemove(req.user.id).exec());
     return res.status(204).send();
 });
 
-exports.listEnrolledCourses = async(function (req, res, next) {
+exports.listEnrolledCourses = async(function(req, res, next) {
     var user = await(User.findById(req.user.id).exec());
     if (!user) {
         return next(new HttpError(404, 'User not found!'));
     }
     // find courses for which the user is enrolled
-    var courses = await(Course.find({ _id: { $in: user.enrollments } }).exec());
-    
+    var courses = await(Course.find({
+        _id: {
+            $in: user.enrollments
+        }
+    }).exec());
+
     // no enrollments
     if (!courses) {
         return res.json([]);
     }
-    var result = courses.map(function (course) {
-        return { id: course._id, title: course.title, description: course.description };
+    var result = courses.map(function(course) {
+        return {
+            id: course._id,
+            title: course.title,
+            description: course.description
+        };
     });
     return res.json(result);
 });
 
-exports.listAuthoredCourses = async(function (req, res, next) {
-    var courses = await(Course.find({ author_id: req.user.id }).exec());
+exports.listAuthoredCourses = async(function(req, res, next) {
+    var courses = await(Course.find({
+        author_id: req.user.id
+    }).exec());
     // no authored courses
     if (!courses) {
         return res.json([]);
     }
-    var result = courses.map(function (course) {
-        return { id: course._id, title: course.title, description: course.description };
+    var result = courses.map(function(course) {
+        return {
+            id: course._id,
+            title: course.title,
+            description: course.description
+        };
     });
     return res.json(result);
 });
 
-exports.enroll = async(function (req, res, next) {
+exports.enroll = async(function(req, res, next) {
     var user = await((User.findById(req.user.id).exec()));
     if (!user) {
         return next(new HttpError(404, 'User not found!'));
@@ -59,39 +73,31 @@ exports.enroll = async(function (req, res, next) {
     var index = user.enrollments.indexOf(courseId);
     if (index > -1) {
         return next(new HttpError(409, 'User is already enrolled in the course.'));
-    }
-    else {
+    } else {
         user.enrollments.push(courseId);
-        user.save(function (err) {
-            if (err) {
-                return next(err);
-            }
-            return res.status(204).send();
-        });
+        await(user.save());
+        return res.status(204).send();
     }
     return next(new HttpError(404, 'Course not found!'));
 });
 
-exports.drop = async(function (req, res, next) {
+exports.drop = async(function(req, res, next) {
     var user = await(User.findById(req.user.id).exec());
     if (!user) {
         return next(new HttpError(404, 'User not found.'));
     }
-    var courseId = req.query.course_id;
+    var courseId = req.params.course_id;
+    console.log(courseId)
     var index = user.enrollments.indexOf(courseId);
     if (index > -1) {
         user.enrollments.splice(index, 1);
-        user.save(function (err) {
-            if (err) {
-                return next(err);
-            }
-            return res.status(204).send();
-        });
+        await(user.save());
+        return res.status(204).send();
     }
-    return next(new HttpError(404, 'Course not found.'));
+    return next(new HttpError(404, 'User is not enrolled for this course.'));
 });
 
-exports.subscribe = async(function (req, res, next) {
+exports.subscribe = async(function(req, res, next) {
     var user = await(User.findById(req.user.id).exec());
     if (!user) {
         return next(new HttpError(404, 'User not found!'));
@@ -101,7 +107,7 @@ exports.subscribe = async(function (req, res, next) {
     return res.status(204).send();
 });
 
-exports.unsubscribe = async(function (req, res, next) {
+exports.unsubscribe = async(function(req, res, next) {
     var user = await(User.findById(req.user.id));
     if (!user) {
         return next(new HttpError(404, 'User not found!'));
