@@ -51,9 +51,17 @@ exports.listQuizzes = async(function (req, res, next) {
     if (!quizzes) {
         return res.json([]);
     }
-    return res.json(quizzes.map(function (quiz) {
-        return formatQuiz(quiz);
-    }));
+    return res.json(await(quizzes.map(async(function (quiz) {
+        var submission = await(Submission.findOne({
+            user_id: req.user.id,
+            quiz_id: quiz.id
+        }).exec());
+        var dateSolved = null;
+        if (submission) {
+            dateSolved = submission.date_submitted;
+        }
+        return formatQuiz(quiz, dateSolved);
+    }))));
 });
 
 exports.createQuiz = function (req, res, next) {
