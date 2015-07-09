@@ -1,4 +1,6 @@
 var validator = require('validator'),
+    async = require('asyncawait/async'),
+    await = require('asyncawait/await'),
     HttpError = require('../components/http-error'),
     User = require('../models/user');
 

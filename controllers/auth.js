@@ -1,5 +1,7 @@
 var User = require('../models/user'),
     passport = require('passport'),
+    async = require('asyncawait/async'),
+    await = require('asyncawait/await'),
     BasicStrategy = require('passport-http').BasicStrategy;
 
 passport.use(new BasicStrategy(
