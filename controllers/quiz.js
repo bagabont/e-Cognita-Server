@@ -64,27 +64,19 @@ exports.listQuizzes = async(function (req, res, next) {
     }))));
 });
 
-exports.createQuiz = function (req, res, next) {
+exports.createQuiz = async(function (req, res, next) {
     var quizData = req.body;
     var result = validateQuiz(quizData);
     if (!result.success) {
         return next(new HttpError(400, result.errors));
     }
-    Course.findById(quizData.course_id, function (err, course) {
-        if (err) {
-            return next(err);
-        }
-        if (!course) {
-            return next(new HttpError(404, 'The course specified for this quiz cannot be found.'));
-        }
-        Quiz.create(quizData, function (err) {
-            if (err) {
-                return next(err);
-            }
-            return res.status(201).send();
-        });
-    })
-};
+    var course = await(Course.findById(quizData.course_id).exec());
+    if (!course) {
+        return next(new HttpError(404, 'The course specified for this quiz cannot be found.'));
+    }
+    await(Quiz.create(quizData));
+    return res.status(201).send();
+});
 
 exports.getQuizById = async(function (req, res, next) {
     var quiz = await(Quiz.findById(req.params.id));
@@ -95,29 +87,25 @@ exports.getQuizById = async(function (req, res, next) {
     }
 });
 
-exports.getQuestions = function (req, res, next) {
-    Quiz.findById(req.params.id, function (err, quiz) {
-        if (err) {
-            return next(err);
+exports.getQuestions = async(function (req, res, next) {
+    var quiz = await(Quiz.findById(req.params.id));
+    if (!quiz) {
+        return next(new HttpError(404, 'Quiz not found.'));
+    }
+    // Check if quiz has due time.
+    if (quiz.date_due && quiz.date_due > Date.now()) {
+        return next(new HttpError(410, 'The quiz is no longer available.'));
+    }
+    var questions = quiz.questions;
+    var result = questions.map(function (question) {
+        return {
+            id: question._id,
+            question: question.question,
+            choices: question.choices
         }
-        if (!quiz) {
-            return next(new HttpError(404, 'Quiz not found.'))
-        }
-        // Check if quiz has due time.
-        if (quiz.date_due && quiz.date_due > Date.now()) {
-            return next(new HttpError(410, 'The quiz is no longer available.'));
-        }
-        var questions = quiz.questions;
-        var result = questions.map(function (question) {
-            return {
-                id: question._id,
-                question: question.question,
-                choices: question.choices
-            }
-        });
-        return res.status(200).json(result);
     });
-};
+    return res.status(200).json(result);
+});
 
 exports.publishQuiz = function (req, res, next) {
     Quiz.findById(req.params.id, function (err, quiz) {
@@ -234,7 +222,7 @@ exports.getUserQuizSolutionAsync = async(function (req, res, next) {
                 question: question.question,
                 choices: question.choices,
                 correct: question.correct,
-                selected: answer ? answer.selected : null
+                selected: answer ? answer.selected : -1
             };
         });
         res.json(result);
