@@ -523,6 +523,60 @@ GET /api/account/scores/:quiz_id
 ```
 
 
+### Get answers distribution
+*Request*
+```httph
+GET /api/statistics/:quiz_id/answers_distribution
+
+params:
+quiz_id - ID of the quiz
+```
+
+*Response*
+```json
+{
+    "quiz_id": "559e8de85f021d1100b75e60",
+    "quiz_title": "test 2",
+    "total_submissions": 2,
+    "answers_distribution": [
+        {
+        "question": "test question",
+        "correct_answers_count": 1,
+        "wrong_answers_count": 1,
+        "not_answered_count": 0
+        }
+    ]
+}
+```
+
+### Get submitted dates distribution
+*Request*
+ ```httph
+ GET /api/statistics/:quiz_id/answers_distribution
+
+ params:
+ quiz_id - ID of the quiz
+ ```
+
+ *Response*
+ ```json
+ {
+     "quiz_id": "559e8de85f021d1100b75e60",
+     "quiz_title": "test 2",
+     "date_published": "2015-07-09T15:06:42.824Z",
+     "submissions": [
+         {
+         "id": "559e8e6c5f021d1100b75e62",
+         "date_submitted": "2015-07-09T15:08:28.713Z"
+         },
+         {
+         "id": "55a28c46406edc11002ba8b1",
+         "date_submitted": "2015-07-12T15:48:22.413Z"
+         }
+     ]
+ }
+ ```
+
 ### Get grade distribution
 *Request*
 ```httph

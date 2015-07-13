@@ -144,3 +144,30 @@ exports.getAnswersDistributionAsync = async(function (req, res, next) {
 
     return res.json(data);
 });
+
+exports.getSubmissionDateStatsAsync = async(function (req, res, next) {
+    var quizId = req.params.quiz_id;
+    var quiz = await(Quiz.findById(quizId).exec());
+    if (!quiz) {
+        return next(new HttpError(404, 'Quiz not found.'));
+    }
+    var datePublished = quiz.date_published;
+    if (!datePublished) {
+        return next(new HttpError(400, 'Quiz is not published.'));
+    }
+    var submissions = await(Submission.find({quiz_id: quizId}).exec());
+    var result = {
+        quiz_id: quiz.id,
+        quiz_title: quiz.title,
+        date_published: datePublished,
+        submissions: []
+    };
+
+    _.each(submissions, function (submission) {
+        result.submissions.push({
+            id: submission.id,
+            date_submitted: submission.date_submitted
+        });
+    });
+    return res.json(result);
+});

@@ -2,28 +2,13 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 var Submission = new Schema({
-    quiz_id: {
-        type: Schema.ObjectId,
-        required: true
-    },
-    user_id: {
-        type: Schema.ObjectId,
-        required: true
-    },
-    date_submitted: {
-        type: Date
-    },
+    quiz_id: {type: Schema.ObjectId, required: true},
+    user_id: {type: Schema.ObjectId, required: true},
+    date_submitted: {type: Date},
     solutions: [{
-        question_id: {
-            type: Schema.ObjectId,
-            required: true
-        },
-        selected: {
-            type: Number
-        },
-        time_answered: {
-            type: Number
-        }
+        question_id: {type: Schema.ObjectId, required: true},
+        selected: {type: Number},
+        time_answered: {type: Number}
     }]
 });
 
