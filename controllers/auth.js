@@ -6,7 +6,7 @@ var User = require('../models/user'),
 
 passport.use(new BasicStrategy(
     function (username, password, callback) {
-        User.findOne({ email: username }, function (err, user) {
+        User.findOne({email: username}, function (err, user) {
             if (err) {
                 return callback(err);
             }
@@ -25,4 +25,4 @@ passport.use(new BasicStrategy(
         });
     }));
 
-exports.isAuthenticated = passport.authenticate('basic', { session: false });
+exports.isAuthenticated = passport.authenticate('basic', {session: false});

@@ -19,19 +19,19 @@ function formatCourse(course, author) {
     };
 }
 
-exports.listCourses = async(function(req, res, next) {
+exports.listCourses = async(function (req, res, next) {
     var courses = await(Course.find().exec());
     if (!courses) {
         return res.json([]);
     }
-    var result = await(courses.map(async(function(course) {
+    var result = await(courses.map(async(function (course) {
         var author = await(User.findById(course.author_id));
         return formatCourse(course, author);
     })));
     return res.json(result);
 });
 
-exports.createCourse = async(function(req, res, next) {
+exports.createCourse = async(function (req, res, next) {
     var courseData = req.body;
     var course = await(Course.findOne({
         title: courseData.title
@@ -43,11 +43,11 @@ exports.createCourse = async(function(req, res, next) {
     // set course author
     courseData.author_id = req.user.id;
     await(Course.create(courseData).exec());
-    
+
     return res.json(formatCourse(course));
 });
 
-exports.getCourseById = async(function(req, res, next) {
+exports.getCourseById = async(function (req, res, next) {
     try {
         var courseId = req.params.id;
         if (!ObjectId.isValid(courseId)) {
