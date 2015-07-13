@@ -41,9 +41,13 @@ exports.createCourse = async(function (req, res, next) {
 
     // set course author
     courseData.author_id = req.user.id;
-    await(Course.create(courseData));
 
-    return res.json(formatCourse(course));
+    try {
+        await(Course.create(courseData));
+        return res.send();
+    } catch (e) {
+        return next(new HttpError(400, e.message))
+    }
 });
 
 exports.getCourseById = async(function (req, res, next) {
