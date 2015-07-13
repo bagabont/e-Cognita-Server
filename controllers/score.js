@@ -6,68 +6,40 @@ var Submission = require('../models/submission'),
     User = require('../models/user'),
     await = require('asyncawait/await');
 
-var getQuestionsStatAsync = async(function (quiz) {
-
-    // create stats
-    var stats = [];
-    _.each(quiz.questions, function (question) {
-        stats.push({
-            question_id: question.id,
-            question: question.question,
-            correct_answers_count: 0,
-            wrong_asnwers_count: 0,
-            not_answered: 0
-        });
-    });
-
-    // find all submissions
-    var submissions = await(Submission.find({
-        quiz_id: quiz.id
-    }).exec());
-
-
-    _.each(quiz.questions, function (q) {
-        _.where()
-    });
-
-    return stats;
-});
-
 var evaluateSubmissionAsync = async(function (submission) {
     var quiz = await(Quiz.findById(submission.quiz_id));
-    var totalQuestions = quiz.questions.length;
+    var totalQuestionsCount = quiz.questions.length;
 
     // count correct answers
-    var correctAnswers = quiz.questions.filter(function (question) {
+    var correctAnswersCount = quiz.questions.filter(function (question) {
+        // find answer to question
         var answer = _.find(submission.solutions, function (solution) {
             return solution.question_id == question.id
         });
-        if (!answer) {
+        if (!answer || answer == -1) {
             return false;
         }
-        console.log('correct: ' + question.correct);
-        console.log('selected: ' + answer.selected);
         return (question.correct == answer.selected);
     }).length;
+
     // return score
-    return (correctAnswers / totalQuestions);
+    return (correctAnswersCount / totalQuestionsCount);
 });
 
 var evaluateAllSubmissionsAsync = async(function (quiz) {
-    var submissions = await(Submission.find({
-        quiz_id: quiz.id
-    }).exec());
+    var submissions = await(Submission.find({quiz_id: quiz.id}).exec());
     var scores = [];
     _.each(submissions, function (submission) {
         // find user for this submission
         var user = await(User.findById(submission.user_id).exec());
         scores.push({
             user: {
+                id: user.id,
                 first_name: user.first_name,
                 last_name: user.last_name,
                 email: user.email
             },
-            score: await(evaluateSubmissionAsync(submission))
+            score: await(evaluateSubmissionAsync(submission)) //get score in %
         });
     });
     return scores;

@@ -136,9 +136,7 @@ exports.publishQuiz = function (req, res, next) {
             return next(new HttpError(400, 'Quiz without any questions cannot be published.'))
         }
         // find enrolled users
-        User.find({
-            enrollments: quiz.course_id
-        }, function (err, users) {
+        User.find({enrollments: quiz.course_id}, function (err, users) {
             if (err) {
                 return next(err);
             }
@@ -147,7 +145,6 @@ exports.publishQuiz = function (req, res, next) {
             gcmMessage.addData('quiz_id', quiz.id);
             gcmMessage.addData('action', 'publish');
             gcmMessage.addData('message', message);
-
 
             var tokens = [];
             if (users && users.length > 0) {
@@ -220,9 +217,9 @@ exports.getUserQuizSolutionAsync = async(function (req, res, next) {
     var userId = req.user.id;
     var quizId = req.params.quiz_id;
     try {
-        // get user solution
-        var submission = await(Submission.findOne({user_id: userId}).exec());
-        // get quiz
+        // get user solution for the quiz
+        var submission = await(Submission.findOne({user_id: userId, quiz_id: quizId}).exec());
+        // get the quiz
         var quiz = await(Quiz.findById(quizId).exec());
 
         // populate results
@@ -278,9 +275,11 @@ exports.submitSolutionAsync = async(function (req, res, next) {
     if (quiz.isClosed()) {
         return next(new HttpError(403, 'Quiz ' + quiz.title + ' is closed.'));
     }
+    if (!quiz.isPublished()) {
+        return next(new HttpError(403, 'Quiz ' + quiz.title + ' is not published.'));
+    }
 
     var solution = await(Submission.findOne({quiz_id: quizId, user_id: userId}).exec());
-
     if (solution) {
         return next(new HttpError(403, 'User has already solved this quiz.'))
     }

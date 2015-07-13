@@ -21,6 +21,10 @@ Quiz.methods.isClosed = function () {
     return this.date_closed !== undefined;
 };
 
+Quiz.methods.isPublished = function () {
+    return this.date_published !== undefined;
+};
+
 Quiz.methods.hasQuestions = function () {
     if (!this.questions || this.questions.length <= 0) {
         return false;

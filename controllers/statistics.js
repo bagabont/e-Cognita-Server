@@ -24,27 +24,46 @@ var getAverageAsync = async(function (quiz) {
     };
 });
 
+//TODO - doing
+var getAccountPositionComparisonAsync = async(function () {
+    var quizzes = await(Quiz.find().exec());
+    var scores = [];
+    _.each(quizzes, function (quiz) {
+        var quizScores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
+        scores.push(quizScores);
+    });
+
+    // flatten scores
+    scores = _.union.apply(_, scores);
+
+    var userScores = _.chain(scores)
+        .groupBy(function (score) {
+            return score.user.id;
+        });
+
+    return _.chain(userScores).each(function (us) {
+        return _.chain(us).reduce(function (m, n) {
+            return m.score + n.score;
+        })
+    })
+});
+
 var getAccountAvgComparisonAsync = async(function (user) {
     var results = [];
     // get all submissions of user
-    var userSolutions = await(Solution.find({
-        user_id: user.id
-    }).exec());
+    var userSolutions = await(Solution.find({user_id: user.id}).exec());
 
     for (var i = 0; i < userSolutions.length; i++) {
         var solution = userSolutions[i];
 
         // find quiz
-        var quiz = await(Quiz.findById(solution.quiz_id));
+        var quiz = await(Quiz.findById(solution.quiz_id).exec());
 
         // evaluate statistics
         var userScore = await(ScoreController.evaluateSubmissionAsync(solution));
         var quizStat = await(getAverageAsync(quiz));
         results.push({
-            quiz: {
-                id: quiz.id,
-                title: quiz.title
-            },
+            quiz: {id: quiz.id, title: quiz.title},
             user_score: userScore,
             average_score: quizStat.average,
             total_solutions: quizStat.total_solutions
@@ -61,7 +80,9 @@ exports.getByTypeAsync = async(function (req, res, next) {
         case 'avg':
             var result = await(getAccountAvgComparisonAsync(user));
             return res.json(result);
-
+        case 'pos':
+            var result = await(getAccountPositionComparisonAsync(user));
+            return res.json(result);
         default:
             return next(new HttpError(404, 'Unknown statistics type.'));
     }
