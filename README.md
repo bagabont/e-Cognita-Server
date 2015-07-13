@@ -552,7 +552,7 @@ quiz_id - ID of the quiz
 ### Get submitted dates distribution
 *Request*
  ```httph
- GET /api/statistics/:quiz_id/answers_distribution
+ GET /api/statistics/:quiz_id/submissions_dates
 
  params:
  quiz_id - ID of the quiz
