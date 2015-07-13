@@ -49,7 +49,7 @@ var getAccountPositionComparisonAsync = async(function () {
 
                 return {
                     user: gr[0].user,
-                    score: score / gr.length
+                    overall_score: (score / gr.length).toFixed(2)
                 }
             });
         return scores;

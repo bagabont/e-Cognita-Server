@@ -457,6 +457,7 @@ params:
 stat_type       - Statistics type  
   options:
     avg         - Comparison between user's score and the average score for each quiz
+    pos         - Leaderboard
 ```
 
 **Response:**
