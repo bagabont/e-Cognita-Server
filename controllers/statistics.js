@@ -4,17 +4,18 @@ var User = require('../models/user'),
     Quiz = require('../models/quiz'),
     _ = require('underscore'),
     ScoreController = require('../controllers/score'),
+    Submission = require('../models/submission'),
     async = require('asyncawait/async'),
     await = require('asyncawait/await'),
     Course = require('../models/course');
 
-var getAverageAsync = async(function(quiz) {
+var getAverageAsync = async(function (quiz) {
     var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
     var scoresSum = _
-        .map(scores, function(score) {
+        .map(scores, function (score) {
             return score.score;
         })
-        .reduce(function(a, b) {
+        .reduce(function (a, b) {
             return a + b;
         });
     return {
@@ -23,7 +24,7 @@ var getAverageAsync = async(function(quiz) {
     };
 });
 
-var getAccountAvgComparisonAsync = async(function(user) {
+var getAccountAvgComparisonAsync = async(function (user) {
     var results = [];
     // get all submissions of user
     var userSolutions = await(Solution.find({
@@ -52,7 +53,7 @@ var getAccountAvgComparisonAsync = async(function(user) {
     return results;
 });
 
-exports.getByTypeAsync = async(function(req, res, next) {
+exports.getByTypeAsync = async(function (req, res, next) {
     var type = req.params.stat_type;
     var user = await(User.findById(req.user.id).exec());
 
@@ -66,7 +67,7 @@ exports.getByTypeAsync = async(function(req, res, next) {
     }
 });
 
-exports.getGradeDistributionAsync = async(function(req, res, next) {
+exports.getGradeDistributionAsync = async(function (req, res, next) {
     var quizId = req.params.quiz_id;
     var quiz = await(Quiz.findById(quizId).exec());
     if (!quiz) {
@@ -74,16 +75,13 @@ exports.getGradeDistributionAsync = async(function(req, res, next) {
     }
     var gradeDist = [];
     for (var i = 0; i < 10; i++) {
-        gradeDist.push({
-            score: i / 10,
-            count: 0
-        });
+        gradeDist.push({score: i / 10, count: 0});
     }
 
     var scores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
-    _.forEach(scores, function(score) {
+    _.forEach(scores, function (score) {
         var grade = Math.floor(score.score * 10) / 10;
-        var dist = _.find(gradeDist, function(gd) {
+        var dist = _.find(gradeDist, function (gd) {
             return gd.score == grade;
         });
         dist.count++;
@@ -94,38 +92,55 @@ exports.getGradeDistributionAsync = async(function(req, res, next) {
         quiz_title: quiz.title,
         total_participants: scores.length,
         grade_distribution: gradeDist
-    }
+    };
     return res.json(data);
 });
 
-exports.getAnswersDistributionAsync = async(function(req, res, next) {
+exports.getAnswersDistributionAsync = async(function (req, res, next) {
     var quizId = req.params.quiz_id;
     var quiz = await(Quiz.findById(quizId).exec());
     if (!quiz) {
         return next(new HttpError(404, 'Quiz not found.'));
     }
-
-    var submissions = await(Submission.find().exec());
+    var submissions = await(Submission.find({quiz_id: quizId}).exec());
 
     var data = {
         quiz_id: quiz.id,
         quiz_title: quiz.title,
-        questions: []
-    }
+        total_submissions: submissions.length,
+        answers_distribution: []
+    };
+
+    // count correct answers
+    _.each(quiz.questions, function (question) {
+
+        var stat = {
+            question: question.question,
+            correct_answers_count: 0,
+            wrong_answers_count: 0,
+            not_answered_count: 0
+        };
+        data.answers_distribution.push(stat);
+
+        _.each(submissions, function (submission) {
+            // find answer for this question
+            var answer = _.find(submission.solutions, function (solution) {
+                return solution.question_id == question.id
+            });
+
+            if (!answer || answer.selected == -1) {
+                stat.not_answered_count++;
+                return;
+            }
+
+            if (question.correct == answer.selected) {
+                stat.correct_answers_count++;
+            }
+            else {
+                stat.wrong_answers_count++;
+            }
+        });
+    });
+
     return res.json(data);
 });
-
-/*
-
-{
-    "quiz_id": "123",
-    "quiz_title": "Title",
-    "questions_stat": [
-        "question": "Is this a question?",
-        "question_index": 0,
-        "correct_answers_count": 10,
-        "wrong_answers_count": 7
-    ]
-}
-
-*/

@@ -78,7 +78,6 @@ exports.enroll = async(function(req, res, next) {
         await(user.save());
         return res.status(204).send();
     }
-    return next(new HttpError(404, 'Course not found!'));
 });
 
 exports.drop = async(function(req, res, next) {

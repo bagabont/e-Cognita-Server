@@ -1,4 +1,4 @@
-var HttpError = function (status, message) {
+var HttpError = function(status, message) {
     this.status = status;
     this.message = message;
     Error.call(this, message);

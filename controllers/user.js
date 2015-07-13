@@ -19,18 +19,26 @@ function validateRegisterUserRequest(requestBody) {
         errors.push('Invalid last name.');
     }
     if (errors.length > 0) {
-        return { success: false, errors: errors.join() };
+        return {
+            success: false,
+            errors: errors.join()
+        };
     }
-    return { success: true, errors: null };
+    return {
+        success: true,
+        errors: null
+    };
 }
 
-exports.register = async(function (req, res, next) {
+exports.register = async(function(req, res, next) {
     var requestBody = req.body;
     var result = validateRegisterUserRequest(requestBody);
     if (!result.success) {
         return next(new HttpError(400, result.errors));
     }
-    var user = await(User.findOne({ email: requestBody.email }).exec());
+    var user = await(User.findOne({
+        email: requestBody.email
+    }).exec());
     if (user) {
         return next(new HttpError(409, 'Email: ' + requestBody.email + ', already registered.'));
     }
@@ -44,10 +52,10 @@ exports.register = async(function (req, res, next) {
     return res.status(201).send();
 });
 
-exports.listUsers = async(function (req, res, next) {
+exports.listUsers = async(function(req, res, next) {
     var users = await(User.find().exec());
-    
-    return res.json(users.map(function (user) {
+
+    return res.json(users.map(function(user) {
         return {
             email: user.email,
             first_name: user.firstname,
