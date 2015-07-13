@@ -26,7 +26,10 @@ var getAverageAsync = async(function (quiz) {
 
 //TODO - doing
 var getAccountPositionComparisonAsync = async(function () {
+    // get all quizzes
     var quizzes = await(Quiz.find().exec());
+
+    // compute scores for all quizzes
     var scores = [];
     _.each(quizzes, function (quiz) {
         var quizScores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
@@ -36,16 +39,18 @@ var getAccountPositionComparisonAsync = async(function () {
     // flatten scores
     scores = _.union.apply(_, scores);
 
-    var userScores = _.chain(scores)
+    var userScores = _
+        .chain(scores)
         .groupBy(function (score) {
-            return score.user.id;
-        });
-
-    return _.chain(userScores).each(function (us) {
-        return _.chain(us).reduce(function (m, n) {
-            return m.score + n.score;
+        return score.user.id;
+    }).map(function(value, key) {
+            return {
+                FlexCategoryName: key,
+                Cost: sum(_.pluck(value, "Cost")),
+                Impressions: sum(_.pluck(value, "Impressions"))
+            }
         })
-    })
+        .value();
 });
 
 var getAccountAvgComparisonAsync = async(function (user) {

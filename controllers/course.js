@@ -33,16 +33,15 @@ exports.listCourses = async(function (req, res, next) {
 
 exports.createCourse = async(function (req, res, next) {
     var courseData = req.body;
-    var course = await(Course.findOne({
-        title: courseData.title
-    }));
+    var course = await(Course.findOne({title: courseData.title}).exec());
 
     if (course) {
         return next(new HttpError(409, 'Course already exists.'));
     }
+
     // set course author
     courseData.author_id = req.user.id;
-    await(Course.create(courseData).exec());
+    await(Course.create(courseData));
 
     return res.json(formatCourse(course));
 });
