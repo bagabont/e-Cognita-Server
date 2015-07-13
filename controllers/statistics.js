@@ -24,34 +24,37 @@ var getAverageAsync = async(function (quiz) {
     };
 });
 
-//TODO - doing
+
 var getAccountPositionComparisonAsync = async(function () {
-    // get all quizzes
-    var quizzes = await(Quiz.find().exec());
+        // get all quizzes
+        var quizzes = await(Quiz.find().exec());
 
-    // compute scores for all quizzes
-    var scores = [];
-    _.each(quizzes, function (quiz) {
-        var quizScores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
-        scores.push(quizScores);
-    });
+        // compute scores for all quizzes
+        var scores = [];
+        _.each(quizzes, function (quiz) {
+            var quizScores = await(ScoreController.evaluateAllSubmissionsAsync(quiz));
+            scores.push(quizScores);
+        });
 
-    // flatten scores
-    scores = _.union.apply(_, scores);
+        // flatten scores
+        scores = _.chain(scores)
+            .flatten()
+            .groupBy(function (score) {
+                return score.user.id;
+            })
+            .map(function (gr) {
+                var score = _.chain(gr).reduce(function (memo, group) {
+                    return memo + group.score;
+                }, 0);
 
-    var userScores = _
-        .chain(scores)
-        .groupBy(function (score) {
-        return score.user.id;
-    }).map(function(value, key) {
-            return {
-                FlexCategoryName: key,
-                Cost: sum(_.pluck(value, "Cost")),
-                Impressions: sum(_.pluck(value, "Impressions"))
-            }
-        })
-        .value();
-});
+                return {
+                    user: gr[0].user,
+                    score: score / gr.length
+                }
+            });
+        return scores;
+    })
+    ;
 
 var getAccountAvgComparisonAsync = async(function (user) {
     var results = [];

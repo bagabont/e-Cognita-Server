@@ -33,6 +33,7 @@ var evaluateAllSubmissionsAsync = async(function (quiz) {
         // find user for this submission
         var user = await(User.findById(submission.user_id).exec());
         scores.push({
+            quiz_id: quiz.id,
             user: {
                 id: user.id,
                 first_name: user.first_name,
